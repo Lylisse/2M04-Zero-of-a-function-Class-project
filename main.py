@@ -5,6 +5,8 @@ class Function:
         self.vars=funcVars # une chaine contenant les variables de la fonction 
         #(par exemple pour 5x + 13 on a vars=[5x,13] et type="+")
     def __str__(self):
+        return SimplifyEasyParenth(self.toString())
+    def toString(self):
         if(self.type=="x"):
             return "x"
         elif(self.type=="const"):
@@ -12,33 +14,33 @@ class Function:
         elif(self.type=="+"):
             returnText=""
             for aFunc in self.vars:
-                returnText+=str(aFunc)
+                returnText+=aFunc.toString()
                 returnText+="+"
             return "("+returnText[:-1]+")"
         elif(self.type=="*"):
             returnText=""
             for aFunc in self.vars:
-                returnText+=str(aFunc)
+                returnText+=aFunc.toString()
                 returnText+="*"
             return "("+returnText[:-1]+")"
         elif(self.type=="/"):
             returnText=""
             for aFunc in self.vars:
-                returnText+=str(aFunc)
+                returnText+=aFunc.toString()
                 returnText+="/"
             return "("+returnText[:-1]+")"
         elif(self.type=="^"):
             returnText=""
             for aFunc in self.vars:
-                returnText+=str(aFunc)
+                returnText+=aFunc.toString()
                 returnText+="^"
             return "("+returnText[:-1]+")"
         elif(self.type=="sin"):
-            return "sin("+str(self.vars)+")"
+            return "sin("+self.vars.toString()+")"
         elif(self.type=="cos"):
-            return "cos("+str(self.vars)+")"
+            return "cos("+self.vars.toString()+")"
         elif(self.type=="tan"):
-            return "tan("+str(self.vars)+")"
+            return "tan("+self.vars.toString()+")"
 
 def standardizeFunc(text): #fonction qui par exemple renvoie 2*x pour 2x
     newText=text
@@ -53,6 +55,66 @@ def standardizeFunc(text): #fonction qui par exemple renvoie 2*x pour 2x
                 newText=newText[:reverseIndex]+"*"+newText[reverseIndex:]
     return newText
 
+def SimplifyEasyParenth(text):
+    if(len(text)==0):
+        return ""
+    referenceText=""
+    parenthIndex=0
+    if(text[0]=="(" and text[-1]==")"):
+        for char in text[1:-1]:
+            if char=="(":
+                parenthIndex+=1
+            if parenthIndex==0:
+                referenceText+=char
+            if char==")":
+                parenthIndex-=1
+                if parenthIndex<0:
+                    print("breaked!")
+                    break
+        else:
+            return SimplifyEasyParenth(text[1:-1])
+
+    actualParenthIndex=0
+    OpenedParenths=[]
+    lastOpenedParenth=-1
+    recentlyParenthChange=0
+    fastOpenedParenth=[]
+    parenthToDelete=[]
+    OpenIndexofParenth=[""]*(len(text.split("(")))
+    CloseIndexofParenth=[""]*(len(text.split("(")))
+    for index in range(len(text)):
+        char = text[index]
+        if char=="(":
+            lastOpenedParenth+=1
+            OpenedParenths.append(lastOpenedParenth)
+            OpenIndexofParenth[lastOpenedParenth]=index
+            actualParenthIndex=OpenedParenths[-1]
+            if(recentlyParenthChange==1):
+                fastOpenedParenth.append(lastOpenedParenth-1)
+            recentlyParenthChange=1
+        elif char==")":
+            if(recentlyParenthChange==1):
+                parenthToDelete.append(lastOpenedParenth)
+            elif(recentlyParenthChange==-1 and actualParenthIndex in fastOpenedParenth):
+                parenthToDelete.append(actualParenthIndex)
+            recentlyParenthChange=-1
+            CloseIndexofParenth[OpenedParenths[-1]]=index
+            OpenedParenths.pop()
+            if(OpenedParenths!=[]):
+                actualParenthIndex=OpenedParenths[-1]
+            else:
+                actualParenthIndex=-1
+        else:
+            recentlyParenthChange=0
+    indexsToRemove=[]
+    for parenthIndex in parenthToDelete:
+        indexsToRemove.append(OpenIndexofParenth[parenthIndex])
+        indexsToRemove.append(CloseIndexofParenth[parenthIndex])
+    returnValue=""
+    for index in range(len(text)):
+        if index not in indexsToRemove:
+            returnValue=returnValue+text[index]
+    return returnValue
 
 
 def textToFunc(text):
@@ -149,10 +211,14 @@ def textToFunc(text):
     elif(referenceText=="tan"):
         return Function("tan",textToFunc(text[4:-1]))
     else:
-        try:
-            return Function("const",float(text))
-        except:
-            print("impossible d'interpréter la fonction!")
+        if text.isdigit():
+            return Function("const",int(text))
+        else:
+            try:
+                return Function("const",float(text))
+            except:
+                print("impossible d'interpréter la fonction!")
+                return ""
 
 
 while True:

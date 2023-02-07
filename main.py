@@ -35,12 +35,11 @@ class Function:
                 returnText+=aFunc.toString()
                 returnText+="^"
             return "("+returnText[:-1]+")"
-        elif(self.type=="sin"):
-            return "sin("+self.vars.toString()+")"
-        elif(self.type=="cos"):
-            return "cos("+self.vars.toString()+")"
-        elif(self.type=="tan"):
-            return "tan("+self.vars.toString()+")"
+        elif(self.type in ["sin","cos","tan","arcsin","arccos","arctan"]):
+            return self.type+"("+self.vars.toString()+")"
+        else:
+            print("impossible to convert func to str!")
+            return ""
 
 def standardizeFunc(text): #fonction qui par exemple renvoie 2*x pour 2x
     newText=text
@@ -53,9 +52,13 @@ def standardizeFunc(text): #fonction qui par exemple renvoie 2*x pour 2x
         if text[reverseIndex] in ["(","x"] and reverseIndex-1>=0:
             if text[reverseIndex-1].isnumeric():
                 newText=newText[:reverseIndex]+"*"+newText[reverseIndex:]
-    return newText
+    return SimplifyEasyParenth(newText)
 
 def SimplifyEasyParenth(text):
+    if(type(text)!=str):
+        print("impossible d'interpréter la fonction!")
+        return ""
+        
     if(len(text)==0):
         return ""
     referenceText=""
@@ -130,8 +133,7 @@ def textToFunc(text):
             referenceText+=char
         if char==")":
             parenthIndex-=1
-
-
+    print(referenceText)
     if(text=="x"):
         return Function("x",[])
     elif(referenceText.find("+")!=-1):
@@ -193,23 +195,8 @@ def textToFunc(text):
         splittedText.append(textbit)
 
         return Function("^",[textToFunc(atext) for atext in splittedText])
-    elif(text[0]=="("and text[-1]==")"):
-        parenthIndex=1
-        for char in text[1:-1]:
-            if char==")" and parenthIndex==1:
-                print("impossible d'interpréter la fonction!")
-            else:
-                if char=="(":
-                    parenthIndex+=1
-                elif char==")":
-                    parenthIndex-=1
-        return textToFunc(text[1:-1])
-    elif(referenceText=="sin"):
-        return Function("sin",textToFunc(text[4:-1]))
-    elif(referenceText=="cos"):
-        return Function("cos",textToFunc(text[4:-1]))
-    elif(referenceText=="tan"):
-        return Function("tan",textToFunc(text[4:-1]))
+    elif(referenceText in ["sin","cos","tan","arcsin","arccos","arctan"]):
+        return Function(referenceText,textToFunc(text[len(referenceText)+1:-1]))
     else:
         if text.isdigit():
             return Function("const",int(text))

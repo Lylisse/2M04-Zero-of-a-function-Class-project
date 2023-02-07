@@ -134,7 +134,7 @@ def ignoreParenths(text):
             parenthIndex-=1
     return editedText
 
-def textToFunc(text):
+def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a pas la priorité
     text=standardizeFunc(text)
     splittedText=[]
     

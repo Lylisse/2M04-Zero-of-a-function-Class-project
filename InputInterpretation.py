@@ -1,3 +1,4 @@
+
 class Function:
     def __init__(self,atype,funcVars):
         self.type=atype # "+","*","/","^","sin","cos","tan","const","x" 
@@ -45,7 +46,6 @@ def getValuesStacks(intArray):
             stacksArray.append(1)
         lastNumb=numb
     returnArray = [set()]*len(intArray)
-    print(intArray,stacksArray)
 
     parenthIndex=0
     for stackLength in stacksArray:
@@ -55,17 +55,16 @@ def getValuesStacks(intArray):
         for i in range(stackLength):
             returnArray[parenthIndex+i]=stackArrayOfIndexs
         parenthIndex+=stackLength
-    print(returnArray)
     return returnArray
 
 def verifParenthCoherence(text):
-    parenthIndex=0
+    parenthDepth=0
     for char in text[1:-1]:
         if char=="(":
-            parenthIndex+=1
+            parenthDepth+=1
         if char==")":
-            parenthIndex-=1
-            if parenthIndex<0:
+            parenthDepth-=1
+            if parenthDepth<0: # la profondeur de parenthèse ne doit pas être négative par ex: "(2x+1)x+2)" ne doit pas être accepté 
                 return False
     else:
         return True
@@ -92,6 +91,8 @@ def SimplifyEasyParenth(text):
     if(type(text)!=str):
         print("impossible d'interpréter la fonction!")
         return ""
+    if(text.count("(")==0):
+        return text
     
     
     if(text[0]=="(" and text[-1]==")"):

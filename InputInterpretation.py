@@ -42,6 +42,7 @@ def getValuesStacks(intArray):
     for numb in intArray:
         if(abs(numb-lastNumb)==1):
             stacksArray[-1]+=1
+            print("hELLO WORLD")
         else:
             stacksArray.append(1)
         lastNumb=numb

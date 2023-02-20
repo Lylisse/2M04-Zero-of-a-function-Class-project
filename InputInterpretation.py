@@ -1,28 +1,49 @@
-
+BasicFunctionsNames=["sin","cos","tan","arcsin","arccos","arctan","exp","ln"]
 class Function: #on définit les propriétés de l'object fonction
     def __init__(self,atype,funcVars):
-        self.type=atype # "+","*","/","^","sin","cos","tan","const","x" #on veut que la fonction soit simple pour ensuite l'analyser
+        self.type=atype # parmi ces types"+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan" #on veut que la fonction soit simple pour ensuite l'analyser
         self.vars=funcVars # une chaine contenant les variables de la fonction 
         #(par exemple pour 5x + 13 on a vars=[5x,13] et type="+")
     def __str__(self):#on définit ce qu'il va arriver lorsque on utilise la fonction str(<notre object fonction>)
         return SimplifyEasyParenth(self.toString())#on retourne la fonction en la transformant en une chaine de caractère (avec la fonction qu'on définit juste après) et on utilise la fonction qui simplifie les parenthèses pour que ça soit propre
+    def __mul__(self, other):
+        if(type(other)==int or type(other)== float):
+            other=Function("const", other)
+        return Function("*",[self,other])
+    def __truediv__(self, other):
+        if(type(other)==int or type(other)== float):
+            other=Function("const", other)
+        return Function("/",[self,other])
+    def __add__(self, other):
+        if(type(other)==int or type(other)== float):
+            other=Function("const", other)
+        return Function("+",[self,other])
+    def __sub__(self, other):
+        if(type(other)==int or type(other)== float):
+            other=Function("const", other)
+        return Function("-",[self,other])
+    def __pow__(self, other):
+        if(type(other)==int or type(other)== float):
+            other=Function("const", other)
+        return Function("^",[self,other])
     def toString(self):
         if(self.type=="x"):
             return "x"
         elif(self.type=="const"):
             return str(self.vars)
-        elif(self.type in ["+","*","/","^"]):
+        elif(self.type in ["-","+","*","/","^"]):
             returnText=""
             for aFunc in self.vars:
                 returnText+=aFunc.toString()
                 returnText+=self.type
             return "("+returnText[:-1]+")"
-        elif(self.type in ["sin","cos","tan","arcsin","arccos","arctan"]):
+        elif(self.type in BasicFunctionsNames):
             return self.type+"("+self.vars.toString()+")"
         else:
             print("impossible to convert func to str!")
             return ""
-
+def cf(number):
+    return Function("const",number)
 def standardizeFunc(text): #fonction qui par exemple renvoie 2*x pour 2x
     newText=text
     for index in range(len(text)):
@@ -59,7 +80,7 @@ def getValuesStacks(intArray):
 
 def verifParenthCoherence(text):
     parenthDepth=0
-    for char in text[1:-1]:
+    for char in text:
         if char=="(":
             parenthDepth+=1
         if char==")":
@@ -89,7 +110,7 @@ def GetOpenAndCloseParenthIndexs(text):
 
 def SimplifyEasyParenth(text):
     if(type(text)!=str):
-        print("impossible d'interpréter la fonction!")
+        print("impossible d'interpréter la fonction! #112")
         return ""
     if(text.count("(")==0):
         return text
@@ -136,6 +157,7 @@ def ignoreParenths(text):
 
 def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a pas la priorité
     text=standardizeFunc(text)
+    print(text)
     splittedText=[]
     
     referenceText=ignoreParenths(text)
@@ -158,7 +180,7 @@ def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a 
                         parenthIndex-=1
             splittedText.append(textbit)
             return Function(basicOperator,[textToFunc(atext) for atext in splittedText])
-    if(referenceText in ["sin","cos","tan","arcsin","arccos","arctan"]):
+    if(referenceText in BasicFunctionsNames):
         return Function(referenceText,textToFunc(text[len(referenceText)+1:-1]))
     else:
         if text.isdigit():
@@ -167,5 +189,5 @@ def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a 
             try:
                 return Function("const",float(text))
             except:
-                print("impossible d'interpréter la fonction!")
+                print("impossible d'interpréter la fonction!#190")
                 return ""

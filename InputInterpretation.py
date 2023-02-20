@@ -1,11 +1,11 @@
 
-class Function:
+class Function: #on définit les propriétés de l'object fonction
     def __init__(self,atype,funcVars):
-        self.type=atype # "+","*","/","^","sin","cos","tan","const","x" 
+        self.type=atype # "+","*","/","^","sin","cos","tan","const","x" #on veut que la fonction soit simple pour ensuite l'analyser
         self.vars=funcVars # une chaine contenant les variables de la fonction 
         #(par exemple pour 5x + 13 on a vars=[5x,13] et type="+")
-    def __str__(self):
-        return SimplifyEasyParenth(self.toString())
+    def __str__(self):#on définit ce qu'il va arriver lorsque on utilise la fonction str(<notre object fonction>)
+        return SimplifyEasyParenth(self.toString())#on retourne la fonction en la transformant en une chaine de caractère (avec la fonction qu'on définit juste après) et on utilise la fonction qui simplifie les parenthèses pour que ça soit propre
     def toString(self):
         if(self.type=="x"):
             return "x"
@@ -42,7 +42,6 @@ def getValuesStacks(intArray):
     for numb in intArray:
         if(abs(numb-lastNumb)==1):
             stacksArray[-1]+=1
-            print("hELLO WORLD")
         else:
             stacksArray.append(1)
         lastNumb=numb

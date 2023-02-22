@@ -57,7 +57,7 @@ def standardizeFunc(text): #fonction qui par exemple renvoie 2*x pour 2x
                 newText=newText[:reverseIndex]+"*"+newText[reverseIndex:]
     return SimplifyEasyParenth(newText)
 
-def getValuesStacks(intArray):
+def getValuesStacks(intArray):#fonction qui pour une liste donnée retourne une liste contenant pour chaque element la liste des indexes des éléments adjacents qui ont une valeur proche, par exemple pour [1,2,3,7,8] on retourne [(0,1,2),(0,1,2),(0,1,2),(3,4),(3,4)]
     stacksArray=[]
     lastNumb=intArray[0]
     for numb in intArray:
@@ -78,7 +78,7 @@ def getValuesStacks(intArray):
         parenthIndex+=stackLength
     return returnArray
 
-def verifParenthCoherence(text):
+def verifParenthCoherence(text):#fonction qui verifie la coherence des parenthèses, par exemple "()" retourne vrai mais ")((","())(()"ou")(" retourne faux
     parenthDepth=0
     for char in text:
         if char=="(":
@@ -90,7 +90,7 @@ def verifParenthCoherence(text):
     else:
         return True
 
-def GetOpenAndCloseParenthIndexs(text):
+def GetOpenAndCloseParenthIndexs(text):#fonction qui va indexer les parenthèses d'une notation suivant leur ordre d'ouverture et qui va retourner une liste avec l'endroit de la chaine ou elles s'ouvrent et une liste avec l'endroit de la chaîne où elles se ferment par ex pour "(12+x)*3*(3-(4-x))" elle retourne:[0,9,12] et [5,16,17]
     openedParenthsArray=[]
     lastOpenedParenth=0
     OpenIndexofParenths=[None]*text.count("(")
@@ -108,7 +108,7 @@ def GetOpenAndCloseParenthIndexs(text):
     return OpenIndexofParenths,CloseIndexofParenths
     
 
-def SimplifyEasyParenth(text):
+def SimplifyEasyParenth(text):#fonction qui simplifie les parenthèses ouvertes deux fois par exemple pour"3*((2+3))" elle retourne 3*(2+3)
     if(type(text)!=str):
         print("impossible d'interpréter la fonction! #112")
         return ""
@@ -143,7 +143,7 @@ def SimplifyEasyParenth(text):
             editedText+=text[index]
     return editedText
 
-def ignoreParenths(text):
+def ignoreParenths(text):#fonction qui ignore le contenu dans les parenthèses par exemple pour "2*(lolmdr des trucs bzr)+12x"renvoie "2*+12x"
     editedText=""
     parenthIndex=0
     for char in text:

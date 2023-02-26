@@ -4,4 +4,4 @@ from AlgebraicAnalysis import *
 while True:
     anInput=input()
     print(textToFunc(anInput))
-    print(Derivate(anInput))
+    print(Derivate(textToFunc(anInput)))

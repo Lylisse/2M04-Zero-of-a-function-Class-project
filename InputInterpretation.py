@@ -10,6 +10,10 @@ class Function: #on définit les propriétés de l'object fonction
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
         return Function("*",[self,other])
+    def __rmul__(self, other):
+        if(type(other)==int or type(other)== float):
+            other=Function("const", other)
+        return Function("*",[self,other])
     def __truediv__(self, other):
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
@@ -157,7 +161,6 @@ def ignoreParenths(text):#fonction qui ignore le contenu dans les parenthèses p
 
 def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a pas la priorité
     text=standardizeFunc(text)
-    print(text)
     splittedText=[]
     
     referenceText=ignoreParenths(text)

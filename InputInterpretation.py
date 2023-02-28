@@ -9,11 +9,11 @@ class Function: #on définit les propriétés de l'object fonction
     def __mul__(self, other):
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
-        return Function("*",[self,other])
+        return simplifyUselessSubFuncs(Function("*",[self,other]))
     def __rmul__(self, other):
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
-        return Function("*",[self,other])
+        return simplifyUselessSubFuncs(Function("*",[self,other]))
     def __truediv__(self, other):
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
@@ -21,7 +21,7 @@ class Function: #on définit les propriétés de l'object fonction
     def __add__(self, other):
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
-        return Function("+",[self,other])
+        return simplifyUselessSubFuncs(Function("+",[self,other]))
     def __sub__(self, other):
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
@@ -61,6 +61,19 @@ def standardizeFunc(text): #fonction qui par exemple renvoie 2*x pour 2x
                 newText=newText[:reverseIndex]+"*"+newText[reverseIndex:]
     return SimplifyEasyParenth(newText)
 
+
+def simplifyUselessSubFuncs(aFunc):
+    if(aFunc.type in ["+","*"]):
+        newVars=[]
+        for anArg in aFunc.vars:
+            if(anArg.type==aFunc.type):
+                newVars+=anArg.vars
+            else:
+                newVars.append(anArg)
+        return Function(aFunc.type,newVars)
+    else:
+        return aFunc
+
 def getValuesStacks(intArray):#fonction qui pour une liste donnée retourne une liste contenant pour chaque element la liste des indexes des éléments adjacents qui ont une valeur proche, par exemple pour [1,2,3,7,8] on retourne [(0,1,2),(0,1,2),(0,1,2),(3,4),(3,4)]
     stacksArray=[]
     lastNumb=intArray[0]
@@ -91,8 +104,7 @@ def verifParenthCoherence(text):#fonction qui verifie la coherence des parenthè
             parenthDepth-=1
             if parenthDepth<0: # la profondeur de parenthèse ne doit pas être négative par ex: "(2x+1)x+2)" ne doit pas être accepté 
                 return False
-    else:
-        return True
+    return True
 
 def GetOpenAndCloseParenthIndexs(text):#fonction qui va indexer les parenthèses d'une notation suivant leur ordre d'ouverture et qui va retourner une liste avec l'endroit de la chaine ou elles s'ouvrent et une liste avec l'endroit de la chaîne où elles se ferment par ex pour "(12+x)*3*(3-(4-x))" elle retourne:[0,9,12] et [5,16,17]
     openedParenthsArray=[]

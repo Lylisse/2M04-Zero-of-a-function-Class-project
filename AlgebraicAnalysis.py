@@ -1,4 +1,5 @@
 from InputInterpretation import *
+from copy import deepcopy
 
 def Derivate(aFunc):
     if(aFunc.type=="const"):
@@ -70,16 +71,16 @@ def developFunc(aFunc):
                     if(aFunc.vars[index].type!="+"):
                         if(value!=0):
                             print("valeur de l'indexe voulu erronée!")
-                        multVars.append(aFunc.vars[index])
+                        multVars.append(deepcopy(aFunc.vars[index]))
                     else:
-                        multVars.append(aFunc.vars[index].vars[value])
+                        multVars.append(deepcopy(aFunc.vars[index].vars[value]))
                 addVars.append(simplifyUselessSubFuncs(Function("*",multVars)))
             return Function("+",addVars)
     if(aFunc.type=="^"):
         if(aFunc.vars[-1].type=="+"):
             multVars=[]
             for aVar in aFunc.vars[-1].vars:
-                multVars.append(Function("^",aFunc.vars[:-1]+[aVar]))
+                multVars.append(Function("^",deepcopy(aFunc.vars[:-1]+[aVar])))
             return Function("*",multVars)
         else:
             if(len(aFunc.vars)>2):
@@ -101,11 +102,15 @@ def getAllCombinations(arrayOfArraysLengths):
                 returnArray.append([i]+aCombination)
         return returnArray
     
+someFuncToPrint=0
 def simplifyFunc(aFunc):
+    global someFuncToPrint
     if(aFunc.type=="const" or aFunc.type=="x"):
         return aFunc
-    if(aFunc.type not in BasicFunctionsNames): 
+    if(type(aFunc.vars)==list):
         aFunc.vars=[simplifyFunc(aVar) for aVar in aFunc.vars]
+    else:
+        aFunc.vars=simplifyFunc(aFunc.vars)
 
     if(aFunc.type=="+"):
         newVars=[]
@@ -133,12 +138,23 @@ def simplifyFunc(aFunc):
             return newVars[0]
         else:
             return Function("*",newVars)
+    if(aFunc.type=="exp"):
+        if(aFunc.vars.type=="*"):
+            for multVarIndex,aMultVar in enumerate(aFunc.vars.vars):
+                if(aMultVar.type=="ln"):
+                    del aFunc.vars.vars[multVarIndex]
+                    if(len(aFunc.vars.vars)<2):
+                        return Function("^",[aMultVar.vars,aFunc.vars.vars[0]])
+
+                    return Function("^",[aMultVar.vars,aFunc.vars])
         
     return aFunc
 
         
 def developAndSimplifyFunc(aFunc):
+    global someFuncToPrint
     aFunc=developFunc(aFunc)
+    someFuncToPrint=aFunc
     return simplifyFunc(aFunc)
 
 

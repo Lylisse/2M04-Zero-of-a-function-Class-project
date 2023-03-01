@@ -13,5 +13,6 @@ def testFuncDerivative():
 
 
 while True:
-    print(developAndSimplifyFunc(testFuncDerivative()))
+    print(testFuncDerivative())
+    print(testFuncDevAndSimpl())
 

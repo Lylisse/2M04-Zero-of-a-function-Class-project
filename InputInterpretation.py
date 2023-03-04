@@ -1,19 +1,22 @@
+from copy import deepcopy
 BasicFunctionsNames=["sin","cos","tan","arcsin","arccos","arctan","exp","ln"]
 class Function: #on définit les propriétés de l'object fonction
     def __init__(self,atype,funcVars):
         self.type=atype # parmi ces types"+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan" #on veut que la fonction soit simple pour ensuite l'analyser
         self.vars=funcVars # une chaine contenant les variables de la fonction 
         #(par exemple pour 5x + 13 on a vars=[5x,13] et type="+")
+        if(atype in ["+","/","^","-"] and len(funcVars)<2):
+            print("invalid number of args!",atype)
     def __str__(self):#on définit ce qu'il va arriver lorsque on utilise la fonction str(<notre object fonction>)
         return SimplifyEasyParenth(self.toString())#on retourne la fonction en la transformant en une chaine de caractère (avec la fonction qu'on définit juste après) et on utilise la fonction qui simplifie les parenthèses pour que ça soit propre
     def __mul__(self, other):
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
-        return simplifyUselessSubFuncs(Function("*",[self,other]))
+        return Function("*",[self,other])
     def __rmul__(self, other):
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
-        return simplifyUselessSubFuncs(Function("*",[self,other]))
+        return Function("*",[self,other])
     def __truediv__(self, other):
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
@@ -30,6 +33,25 @@ class Function: #on définit les propriétés de l'object fonction
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
         return Function("^",[self,other])
+    def __eq__(self,other):
+        if(not isinstance(other,Function)):
+            return False
+        if(self.type=="x" and other.type=="x"):
+            return True
+        if(self.type!=other.type):
+            return False
+        if(isinstance(self.vars,list) and isinstance(other.vars,list)):
+            for var in self.vars:
+                if var not in other.vars:
+                    return False
+            for var in other.vars:
+                if var not in self.vars:
+                    return False
+        elif(self.vars!=other.vars):
+            return False
+        return True
+    def deepcopy(self):
+        return deepcopy(self)
     def toString(self):
         if(self.type=="x"):
             return "x"
@@ -178,7 +200,7 @@ def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a 
     referenceText=ignoreParenths(text)
 
     if(text=="x"):
-        return Function("x",[])
+        return Function("x",None)
     for basicOperator in ["+","*","/","^"]:
         if(referenceText.find(basicOperator)!=-1):
             parenthIndex=0
@@ -206,3 +228,54 @@ def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a 
             except:
                 print("impossible d'interpréter la fonction!#190")
                 return ""
+
+
+#fonction de débuggage non-utilisée en temps normal
+#fonction pour utile pour voir si il n'y a pas de référence dupliquée dans une même fonction, 
+# par exemple pour x*2+x*2 si la référence de la fonction "*" est dupliquée alors si on change le premier x*2 en x*2*sin(x) 
+# la fonction deviendra x*2*sin(x)+x*2*sin(x) au lieu de x*2*sin(x)+x*2
+def verifReferencesDuplicity(aFunc,foundRefs=[]): 
+    allReferences=foundRefs
+    if(isinstance(aFunc.vars,list)):
+        for aVar in aFunc.vars:
+            if(id(aVar) in allReferences):
+                print("Duplicated func found of type: ",aVar.type)
+                return True
+            if(verifReferencesDuplicity(aVar,allReferences)):
+                return True
+            allReferences.append(id(aVar))
+        
+    elif(aFunc.type not in ["const","x"]):
+        if(id(aFunc.vars) in allReferences):
+            print("Duplicated func found of type: ",aFunc.vars.type)
+            return True
+        if(verifReferencesDuplicity(aFunc.vars,allReferences)):
+            return True
+        allReferences.append(id(aFunc.vars))
+    return False
+#fonction de débuggage non-utilisée en temps normal
+#la fonction vérifie que les fonctions aient un nombre de variables cohérent par exemple "sin"ou"const" doit prendre une et une seule variable tandis ce que "+","*" ou "^" doivent en avoir au moins 2
+def VerifyVarsCoherence(aFunc):
+    if(aFunc.type=="x"):
+        if(aFunc.vars==None):
+            return True
+    elif(aFunc.type=="const"):
+        if(isinstance(aFunc.vars,float) or isinstance(aFunc.vars,int)):
+            return True
+    else:
+        if(isinstance(aFunc.vars,list)):
+            for aVar in aFunc.vars:
+                if(not VerifyVarsCoherence(aVar)):
+                    print("invalid var!#1",aFunc.type)
+                    return False
+        else:
+            if(not VerifyVarsCoherence(aFunc.vars)):
+                print("invalid var!#2",aFunc.type)
+                return False
+    if(aFunc.type in ["+","-","*","/","^"]):
+        if(len(aFunc.vars)>1):
+            return True
+    elif(isinstance(aFunc.vars,Function)):
+        return True
+    print("invalid var!#3",aFunc.type)
+    return False

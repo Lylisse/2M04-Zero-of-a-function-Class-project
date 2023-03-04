@@ -1,5 +1,4 @@
 from InputInterpretation import *
-from copy import deepcopy
 
 def Derivate(aFunc):
     if(aFunc.type=="const"):
@@ -7,23 +6,23 @@ def Derivate(aFunc):
     elif(aFunc.type=="x"):
         return Function("const",1)
     elif(aFunc.type=="sin"):
-        return Function("cos",aFunc.vars)*Derivate(aFunc.vars)
+        return Function("cos",aFunc.vars)*Derivate(aFunc.deepcopy().vars)
     elif(aFunc.type=="cos"):
-        return -1*Function("sin",aFunc.vars)*Derivate(aFunc.vars)
+        return -1*Function("sin",aFunc.vars)*Derivate(aFunc.deepcopy().vars)
     elif(aFunc.type=="tan"):
-        return Function("const",1)/(Function("cos",aFunc.vars)^2)*Derivate(aFunc.vars)
+        return Function("const",1)/(Function("cos",aFunc.vars)^2)*Derivate(aFunc.deepcopy().vars)
     elif(aFunc.type=="+"):
         return Function("+",[Derivate(eachFunc) for eachFunc in aFunc.vars])
     elif(aFunc.type=="*"):
         if(len(aFunc.vars)==2):
-            return Derivate(aFunc.vars[0])*aFunc.vars[1]+aFunc.vars[0]*Derivate(aFunc.vars[1])
+            return Derivate(aFunc.vars[0])*aFunc.vars[1]+aFunc.deepcopy().vars[0]*Derivate(aFunc.deepcopy().vars[1])
         else:
             leftFunc=Function("*",aFunc.vars[:-1])
             rightFunc=aFunc.vars[-1]
             return Derivate(leftFunc*rightFunc)
     elif(aFunc.type=="/"):
         if(len(aFunc.vars)==2):
-            return (Derivate(aFunc.vars[0])*aFunc.vars[1]-aFunc.vars[0]*Derivate(aFunc.vars[1]))/aFunc.vars[1]**2
+            return (Derivate(aFunc.vars[0])*aFunc.vars[1]-aFunc.deepcopy().vars[0]*Derivate(aFunc.deepcopy().vars[1]))/aFunc.deepcopy().vars[1]**2
         else:
             leftFunc=Function("/",aFunc.vars[:-1])
             rightFunc=aFunc.vars[-1]
@@ -36,15 +35,15 @@ def Derivate(aFunc):
             rightFunc=aFunc.vars[-1]
             return Derivate(leftFunc**rightFunc)
     elif(aFunc.type=="exp"):
-        return aFunc*Derivate(aFunc.vars)
+        return aFunc*Derivate(aFunc.deepcopy().vars)
     elif(aFunc.type=="ln"):
-        return Function("const",1)/aFunc.vars*Derivate(aFunc.vars)
+        return Function("const",1)/aFunc.vars*Derivate(aFunc.deepcopy().vars)
     elif(aFunc.type=="arccos"):
-        return Function("const",-1)/((cf(1)-Function("x",None)**cf(2)))**(cf(0.5))*Derivate(aFunc.vars)
+        return Function("const",-1)/((cf(1)-aFunc.vars**cf(2)))**(cf(0.5))*Derivate(aFunc.deepcopy().vars)
     elif(aFunc.type=="arcsin"):
-        return Function("const",1)/((cf(1)-Function("x",None)**cf(2)))**(cf(0.5))*Derivate(aFunc.vars)
+        return Function("const",1)/((cf(1)-aFunc.vars**cf(2)))**(cf(0.5))*Derivate(aFunc.deepcopy().vars)
     elif(aFunc.type=="arctan"):
-        return Function("const",1)/(cf(1)+Function("x",None)**cf(2))*Derivate(aFunc.vars)
+        return Function("const",1)/(cf(1)+aFunc.vars**cf(2))*Derivate(aFunc.deepcopy().vars)
 
 def developFunc(aFunc):
     aFunc=simplifyUselessSubFuncs(aFunc)
@@ -71,16 +70,16 @@ def developFunc(aFunc):
                     if(aFunc.vars[index].type!="+"):
                         if(value!=0):
                             print("valeur de l'indexe voulu erronée!")
-                        multVars.append(deepcopy(aFunc.vars[index]))
+                        multVars.append(aFunc.vars[index].deepcopy())
                     else:
-                        multVars.append(deepcopy(aFunc.vars[index].vars[value]))
+                        multVars.append(aFunc.vars[index].vars[value].deepcopy())
                 addVars.append(simplifyUselessSubFuncs(Function("*",multVars)))
             return Function("+",addVars)
     if(aFunc.type=="^"):
         if(aFunc.vars[-1].type=="+"):
             multVars=[]
             for aVar in aFunc.vars[-1].vars:
-                multVars.append(Function("^",deepcopy(aFunc.vars[:-1]+[aVar])))
+                multVars.append(Function("^",aFunc.deepcopy().vars[:-1]+[aVar]))
             return Function("*",multVars)
         else:
             if(len(aFunc.vars)>2):
@@ -88,6 +87,11 @@ def developFunc(aFunc):
                 return developFunc(Function("^",aFunc.vars[:-1]))
             else:
                 return aFunc
+    if(aFunc.type=="/"):
+        multVars=[aFunc.vars[0]]
+        for aVar in aFunc.vars[1:]:
+            multVars.append(Function("^",[aVar,cf(-1)]))
+        return Function("*",multVars)
     return aFunc
 
 
@@ -102,9 +106,7 @@ def getAllCombinations(arrayOfArraysLengths):
                 returnArray.append([i]+aCombination)
         return returnArray
     
-someFuncToPrint=0
 def simplifyFunc(aFunc):
-    global someFuncToPrint
     if(aFunc.type=="const" or aFunc.type=="x"):
         return aFunc
     if(type(aFunc.vars)==list):
@@ -114,16 +116,21 @@ def simplifyFunc(aFunc):
 
     if(aFunc.type=="+"):
         newVars=[]
+        constVar=0
         for aVar in aFunc.vars:
-            if(aVar.type!="const" or aVar.vars!=0):
+            if(aVar.type!="const"):
                 newVars.append(aVar)
+            else:
+                constVar+=aVar.vars
+        if(constVar!=0):
+            newVars.append(cf(constVar))
         if(len(newVars)==0):
             return cf(0)
         elif(len(newVars)==1):
             return newVars[0]
         else:
             return Function("+",newVars)
-    if(aFunc.type=="*"):
+    elif(aFunc.type=="*"):
         newVars=[]
         for aVar in aFunc.vars:
             if(aVar.type!="const"):
@@ -137,8 +144,10 @@ def simplifyFunc(aFunc):
         elif(len(newVars)==1):
             return newVars[0]
         else:
-            return Function("*",newVars)
-    if(aFunc.type=="exp"):
+            return ApplyMultAssociativity(Function("*",newVars))
+    elif(aFunc.type=="exp"):
+        if(aFunc.vars.type=="const" and aFunc.vars.vars==0):
+            return cf(1)
         if(aFunc.vars.type=="*"):
             for multVarIndex,aMultVar in enumerate(aFunc.vars.vars):
                 if(aMultVar.type=="ln"):
@@ -147,15 +156,53 @@ def simplifyFunc(aFunc):
                         return Function("^",[aMultVar.vars,aFunc.vars.vars[0]])
 
                     return Function("^",[aMultVar.vars,aFunc.vars])
-        
+    elif(aFunc.type=="^"):
+        if(len(aFunc.vars)!=2):
+            print("Fonction mal développée!")
+        if(aFunc.vars[1].type=="const"):
+            if(aFunc.vars[1].vars==0):
+                return cf(1)
+            elif(aFunc.vars[1].vars==1):
+                return aFunc.vars[0]
     return aFunc
+
+def ApplyMultAssociativity(aFunc):
+    argPows=[] # liste qui enregistre la puissance auxquels les arguments sont par exemple pour: 2xsin(x)sin(x) on aura {Function(x,None),1,Function("sin",Function("x",None)),2}
+    constArg=1
+    for aVar in aFunc.vars:
+        if aVar.type=="const":
+            constArg*=aVar.vars
+        elif aVar.type=="^":
+            if(len(aVar.vars)!=2):
+                print("Fonction mal développée!",aVar.vars,aVar.type,aVar,aVar.vars[0].type)
+                print(VerifyVarsCoherence(aFunc))
+                exit()
+            else:
+                if(aVar.vars[0] not in argPows):
+                    argPows.append(aVar.vars[0])
+                    argPows.append(aVar.vars[1])
+                else:
+                    argPows[argPows.index(aVar.vars[0])+1]+=aVar.vars[1]
+        elif(aVar not in argPows):
+            argPows.append(aVar)
+            argPows.append(cf(1))
+        else:
+            argPows[argPows.index(aVar)+1]+=cf(1)
+            argPows[argPows.index(aVar)+1]=simplifyFunc(argPows[argPows.index(aVar)+1])
+    multVars=[cf(constArg)]
+    for index in range(len(argPows)//2):
+        argPows[index*2+1]=simplifyFunc(argPows[index*2+1])
+        multVars.append(simplifyFunc(Function("^",argPows[index*2:(index+1)*2])))
+    return Function("*",multVars)
+
 
         
 def developAndSimplifyFunc(aFunc):
-    global someFuncToPrint
     aFunc=developFunc(aFunc)
-    someFuncToPrint=aFunc
-    return simplifyFunc(aFunc)
+    aFunc=simplifyFunc(aFunc)
+    if(verifReferencesDuplicity(aFunc,[])):
+        print("Certaines références dans la fonctions sont dupliquées!")
+    return aFunc
 
 
 

@@ -1,18 +1,13 @@
 from InputInterpretation import *
 from AlgebraicAnalysis import *
 
+while True:#setup pour tester la dérivation de fonction
 
-def testFuncDevelopment():
-    return developFunc(textToFunc(input()))
-def testFuncInterpretation():
-    return textToFunc(input())
-def testFuncDevAndSimpl():
-    return developAndSimplifyFunc(textToFunc(input()))
-def testFuncDerivative():
-    return Derivate(textToFunc(input()))
+    inputFunc=textToFunc(input())
 
+    derivateFunc=Derivate(inputFunc)
 
-while True:
-    print(testFuncDerivative())
-    print(testFuncDevAndSimpl())
+    simplifiedFunc=developAndSimplifyFunc(derivateFunc)
+
+    print(simplifiedFunc)
 

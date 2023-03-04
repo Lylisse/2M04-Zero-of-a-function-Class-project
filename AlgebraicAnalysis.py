@@ -144,7 +144,7 @@ def simplifyFunc(aFunc):
         elif(len(newVars)==1):
             return newVars[0]
         else:
-            return ApplyMultAssociativity(Function("*",newVars))
+            return ApplyMultDistributivity(Function("*",newVars))
     elif(aFunc.type=="exp"):
         if(aFunc.vars.type=="const" and aFunc.vars.vars==0):
             return cf(1)
@@ -166,7 +166,7 @@ def simplifyFunc(aFunc):
                 return aFunc.vars[0]
     return aFunc
 
-def ApplyMultAssociativity(aFunc):
+def ApplyMultDistributivity(aFunc):
     argPows=[] # liste qui enregistre la puissance auxquels les arguments sont par exemple pour: 2xsin(x)sin(x) on aura {Function(x,None),1,Function("sin",Function("x",None)),2}
     constArg=1
     for aVar in aFunc.vars:

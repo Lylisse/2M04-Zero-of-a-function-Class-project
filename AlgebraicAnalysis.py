@@ -1,28 +1,28 @@
 from InputInterpretation import *
 #les commentaires présents dans ce code paraiterons longs pour ceux qui conaissent bien le phyton, ces commentaires sont pour les "paumés en phyton". Donc si cela ne vous sert par ne les regardez pas. Je vais donner des comms pour toutes les lignes
-def Derivate(aFunc): #On définit la fonction qui va dériver une fonction. La fct va etre aFunc.
-    if(aFunc.type=="const"): 
-        return Function("const",0)
-    elif(aFunc.type=="x"):
-        return Function("const",1)
-    elif(aFunc.type=="sin"):
+def Derivate(aFunc): #On définit la fonction qui va dériver une fonction. La fct initiale va etre aFunc.
+    if(aFunc.type=="const"): #On vérifie si la fonction est une fct constante
+        return Function("const",0) #Si c'est le cas on retourne la fonction constante 0
+    elif(aFunc.type=="x"):  #si la fct c'est x
+        return Function("const",1)  #on retourne la dérivée qui est 1
+    elif(aFunc.type=="sin"):  #On fait la meme chose mais avec le sin, donc on fait sa dérivée, et pareil pour les autres jusqu'a la ligne 13
         return Function("cos",aFunc.vars)*Derivate(aFunc.deepcopy().vars)
     elif(aFunc.type=="cos"):
         return -1*Function("sin",aFunc.vars)*Derivate(aFunc.deepcopy().vars)
     elif(aFunc.type=="tan"):
         return Function("const",1)/(Function("cos",aFunc.vars)^2)*Derivate(aFunc.deepcopy().vars)
-    elif(aFunc.type=="+"):
-        return Function("+",[Derivate(eachFunc) for eachFunc in aFunc.vars])
-    elif(aFunc.type=="*"):
-        if(len(aFunc.vars)==2):
-            return Derivate(aFunc.vars[0])*aFunc.vars[1]+aFunc.deepcopy().vars[0]*Derivate(aFunc.deepcopy().vars[1])
+    elif(aFunc.type=="+"): #Dérivée d'une fonction composée avec addition
+        return Function("+",[Derivate(eachFunc) for eachFunc in aFunc.vars]) #On retourne la fonction + avec comme variables chaque varibales dérives de la fct initiale.
+    elif(aFunc.type=="*"): #Dérivée d'une fonction composée avec multiplication
+        if(len(aFunc.vars)==2): 
+            return Derivate(aFunc.vars[0])*aFunc.vars[1]+aFunc.deepcopy().vars[0]*Derivate(aFunc.deepcopy().vars[1]) #On retourne la dérive de F(x)*g(x) #.vars veut dire on regarde les variables de la fonction de base, quand on met les crochet c'est pour dire la combientième variable que on regarde. Genre f(x)*g(x), aFunc.vars[0] c'est f(x) et [1] c'est g(x) aDunc.deepcopy c'est une copie de la fonction de base 
         else:
             leftFunc=Function("*",aFunc.vars[:-1])
             rightFunc=aFunc.vars[-1]
             return Derivate(leftFunc*rightFunc)
     elif(aFunc.type=="/"):
         if(len(aFunc.vars)==2):
-            return (Derivate(aFunc.vars[0])*aFunc.vars[1]-aFunc.deepcopy().vars[0]*Derivate(aFunc.deepcopy().vars[1]))/aFunc.deepcopy().vars[1]**2
+            return (Derivate(aFunc.vars[0])*aFunc.vars[1]-aFunc.deepcopy().vars[0]*Derivate(aFunc.deepcopy().vars[1]))/aFunc.deepcopy().vars[1]**2  
         else:
             leftFunc=Function("/",aFunc.vars[:-1])
             rightFunc=aFunc.vars[-1]
@@ -45,7 +45,7 @@ def Derivate(aFunc): #On définit la fonction qui va dériver une fonction. La f
     elif(aFunc.type=="arctan"):
         return Function("const",1)/(cf(1)+aFunc.vars**cf(2))*Derivate(aFunc.deepcopy().vars)
 
-def developFunc(aFunc):
+def developFunc(aFunc)
     aFunc=simplifyUselessSubFuncs(aFunc)
     if(aFunc.type in ["const","x"]+BasicFunctionsNames):
         return aFunc

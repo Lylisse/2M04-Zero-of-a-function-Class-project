@@ -6,26 +6,26 @@ class Function: #on définit les propriétés de l'object fonction
         self.vars=funcVars # une chaine contenant les variables de la fonction 
         #(par exemple pour 5x + 13 on a vars=[5x,13] et type="+")
         if(atype in ["+","/","^","-"] and len(funcVars)<2):
-            print("invalid number of args!",atype)
+            print("invalid number of args!",atype)# example 5 il y a juste une partie a droite et pas a gauche, il manque ducoup la variable a gauche
     def __str__(self):#on définit ce qu'il va arriver lorsque on utilise la fonction str(<notre object fonction>)
         return SimplifyEasyParenth(self.toString())#on retourne la fonction en la transformant en une chaine de caractère (avec la fonction qu'on définit juste après) et on utilise la fonction qui simplifie les parenthèses pour que ça soit propre
-    def __mul__(self, other):
+    def __mul__(self, other):#  ici on  implote les operations arithmetiques binaire (+,-,*,/,**,) ici on definit la multiplication
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
         return Function("*",[self,other])
-    def __rmul__(self, other):
+    def __rmul__(self, other):# ici on definit la proprietée de la multiplication a droite et a gauche example "2*x" a droite et "x*2" a gauche
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
         return Function("*",[self,other])
-    def __truediv__(self, other):
+    def __truediv__(self, other):# ici on definit la division
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
         return Function("/",[self,other])
-    def __add__(self, other):
+    def __add__(self, other):#ici on definit l'addition
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
         return simplifyUselessSubFuncs(Function("+",[self,other]))
-    def __sub__(self, other):
+    def __sub__(self, other):# ici on definit la soustraction
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
         return Function("-",[self,other])

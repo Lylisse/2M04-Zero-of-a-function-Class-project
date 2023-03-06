@@ -2,7 +2,7 @@ from InputInterpretation import *
 
 def Derivate(aFunc):
     if(aFunc.type=="const"):
-        return Function("const",0)
+        return Function("const",0) #vous voyez ca
     elif(aFunc.type=="x"):
         return Function("const",1)
     elif(aFunc.type=="sin"):

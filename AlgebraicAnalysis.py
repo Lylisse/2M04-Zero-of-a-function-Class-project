@@ -1,8 +1,8 @@
 from InputInterpretation import *
-
-def Derivate(aFunc):
-    if(aFunc.type=="const"):
-        return Function("const",0) #vous voyez ca
+#les commentaires présents dans ce code paraiterons longs pour ceux qui conaissent bien le phyton, ces commentaires sont pour les "paumés en phyton". Donc si cela ne vous sert par ne les regardez pas. Je vais donner des comms pour toutes les lignes
+def Derivate(aFunc): #On définit la fonction qui va dériver une fonction. La fct va etre aFunc.
+    if(aFunc.type=="const"): 
+        return Function("const",0)
     elif(aFunc.type=="x"):
         return Function("const",1)
     elif(aFunc.type=="sin"):

@@ -231,7 +231,7 @@ def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a 
 
 
 #fonction de débuggage non-utilisée en temps normal
-#fonction pour utile pour voir si il n'y a pas de référence dupliquée dans une même fonction, 
+#fonction utile pour voir si il n'y a pas de référence dupliquée dans une même fonction, 
 # par exemple pour x*2+x*2 si la référence de la fonction "*" est dupliquée alors si on change le premier x*2 en x*2*sin(x) 
 # la fonction deviendra x*2*sin(x)+x*2*sin(x) au lieu de x*2*sin(x)+x*2
 def verifReferencesDuplicity(aFunc,foundRefs=[]): 

@@ -29,7 +29,7 @@ class Function: #on définit les propriétés de l'object fonction
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
         return Function("-",[self,other])
-    def __pow__(self, other):
+    def __pow__(self, other):# ici on definit la puissance
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
         return Function("^",[self,other])

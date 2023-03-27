@@ -6,34 +6,28 @@ def derivee(f, h=10**-5):
     return f_prime
 
 
+function_str = "x**2 + 2*x + (x - 6)"
 
-x = 0
-funct = "x**2 + 2*x + (x - 6)"
+def make_function_from_string(str_func, variable_name='x'):    # Permet de transformer le string d'une fonction (str_func) en fonction python qui retourne le résultat de la valeur entrée
+    return eval(f'lambda {variable_name}: {str_func}')    # On applique variable_name comme variable dans str_func grace à la fonction lambda
 
-def make_function_from_string(str_func, variable_name='x'):    # str_func: la fonction sous forme de string
-	return eval(f'lambda {variable_name}: {str_func}')    # On applique variable_name comme variable dans str_func grace à la fonction lambda
+funct = make_function_from_string(function_str)
 
-
-def newton(funct):
-    listdepoint = []
+def newton(f):
+    listdepoints = []
     for x in range (-100, 100):
-        fonction = eval(funct)
-        listdepoint.append((fonction))
+        listdepoints.append(int(f(x)))
     
-    print(listdepoint)
+    print(listdepoints)
     zero = []
     for index, valeur in enumerate(listdepoints):
-        if valeur * listdepoint[index+1] <= 0:    # Il y a un changement de signe entre les deux points
-            zeros.append(valeur)
+        if valeur * listdepoints[index-1] <= 0:    # Il y a un changement de signe entre les deux points
+            zero.append(valeur)
     return zero
 
 
 for i in range(10):
     point = newton(funct)    # On obtient les zéros approximatifs
-    print(derivee(funct(point)))
-    funct = str(derivee(funct(point))) + "*x"
-
-print(point)
-
-
-print(newton(funct))
+    print(point)
+    f_prim = derivee(funct)
+    print(f_prim(point[0]))

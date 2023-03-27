@@ -50,7 +50,7 @@ ttk.Label(mainframe, text="racines").grid(column=3, row=2, sticky=W)
 #on définit l'emplacement de 'racines' qui permettra d'indiquer que le rectangle inférieur correspond aux zéros de la fonction
 
 fonction_entry.focus()
-#ceci permet de faire en sorte que le souris aille direct dans l'entrée reservée à la fonction, pour éviter d'avoir à bouger le curseur
+#ceci permet de faire en sorte que la souris aille directement dans l'entrée reservée à la fonction, pour ne pas avoir à bouger le curseur
 
 
 

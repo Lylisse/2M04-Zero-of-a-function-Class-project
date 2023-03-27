@@ -4,7 +4,7 @@ from tkinter import ttk
 #On importe un sous-module de tkinter pour pouvoir l'utiliser en dehors de l'objet
 
 x = 6
-def calculate(*args):
+def calculate():
 #on définit la fonction qui permet de calculer les racines d'une fonction
     value = eval(fonction.get())
     zeros.set(value)

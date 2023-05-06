@@ -1,7 +1,7 @@
 from InputInterpretation import *
 from AlgebraicAnalysis import *
 
-import math
 
-while True:#setup pour tester la détection de polynome, mettez ce que vous voulez ici
-    
+while True:
+    print(getRandomFunc(maxDepth=3,constFunc=lambda:randrange(-100,101)))
+    input()

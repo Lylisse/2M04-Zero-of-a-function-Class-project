@@ -1,4 +1,6 @@
 from copy import deepcopy
+from random import *
+FuncTypes=["+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan"]
 BasicFunctionsNames=["sin","cos","tan","arcsin","arccos","arctan","exp","ln"]
 class Function: #on définit les propriétés de l'object fonction
     def __init__(self,atype,funcVars):
@@ -73,6 +75,7 @@ def cf(number):
 
 def standardizeFunc(text): #fonction qui par exemple renvoie 2*x pour 2x
     text.replace(" ","")
+    text.replace("**","^")
     newText=text
     for index in range(len(text)):
         reverseIndex=len(text)-index-1
@@ -286,3 +289,25 @@ def textToPythonInterpretable(text):
     text=standardizeFunc(text)
     text.replace("^","**")
     return text
+
+
+def getRandomFunc(maxDepth=10,depth=0,constFunc=lambda:random()*200-100):
+    if(depth==maxDepth):
+        FuncType="const"
+    else:
+        FuncType=FuncTypes[randrange(0,len(FuncTypes))]
+    if(FuncType=="const"):
+        FuncVars=constFunc()
+        return Function(FuncType,FuncVars)
+    if(FuncType=="x"):
+        FuncVars=None
+        return Function(FuncType,FuncVars)
+    if(FuncType in BasicFunctionsNames):
+        FuncVars=getRandomFunc(maxDepth,depth+1,constFunc)
+        return Function(FuncType,FuncVars)
+    FuncVars=[]
+    for _ in range(randrange(2,6)):
+        FuncVars.append(getRandomFunc(maxDepth,depth+1,constFunc))
+    return Function(FuncType,FuncVars)
+
+    

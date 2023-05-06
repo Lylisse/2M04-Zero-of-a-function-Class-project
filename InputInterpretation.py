@@ -70,7 +70,9 @@ class Function: #on définit les propriétés de l'object fonction
             return ""
 def cf(number):
     return Function("const",number)
+
 def standardizeFunc(text): #fonction qui par exemple renvoie 2*x pour 2x
+    text.replace(" ","")
     newText=text
     for index in range(len(text)):
         reverseIndex=len(text)-index-1
@@ -279,3 +281,8 @@ def VerifyVarsCoherence(aFunc):
         return True
     print("invalid var!#3",aFunc.type)
     return False
+
+def textToPythonInterpretable(text):
+    text=standardizeFunc(text)
+    text.replace("^","**")
+    return text

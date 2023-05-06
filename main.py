@@ -1,13 +1,7 @@
 from InputInterpretation import *
 from AlgebraicAnalysis import *
 
-while True:#setup pour tester la dérivation de fonction
+import math
 
-    inputFunc=textToFunc(input())
-
-    derivateFunc=Derivate(inputFunc)
-
-    simplifiedFunc=developAndSimplifyFunc(derivateFunc)
-
-    print(simplifiedFunc)
-
+while True:#setup pour tester la détection de polynome, mettez ce que vous voulez ici
+    

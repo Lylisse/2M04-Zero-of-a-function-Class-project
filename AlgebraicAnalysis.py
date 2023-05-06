@@ -45,7 +45,12 @@ def Derivate(aFunc): #On définit la fonction qui va dériver une fonction. La f
     elif(aFunc.type=="arctan"):
         return Function("const",1)/(cf(1)+aFunc.vars**cf(2))*Derivate(aFunc.deepcopy().vars)
 
-def developFunc(aFunc)
+
+
+def developFunc(aFunc):
+    """
+    à utiliser avec précaution
+    """
     aFunc=simplifyUselessSubFuncs(aFunc)
     if(aFunc.type in ["const","x"]+BasicFunctionsNames):
         return aFunc
@@ -107,6 +112,9 @@ def getAllCombinations(arrayOfArraysLengths):
         return returnArray
     
 def simplifyFunc(aFunc):
+    """
+    à utiliser avec précaution
+    """
     if(aFunc.type=="const" or aFunc.type=="x"):
         return aFunc
     if(type(aFunc.vars)==list):
@@ -114,7 +122,7 @@ def simplifyFunc(aFunc):
     else:
         aFunc.vars=simplifyFunc(aFunc.vars)
 
-    if(aFunc.type=="+"):
+    if(aFunc.type=="+"): # on additionne les constantes et on laisse le reste pareil, par exemple 2*x+3*x+2+3 -->2*x+3*x + 5 
         newVars=[]
         constVar=0
         for aVar in aFunc.vars:
@@ -130,15 +138,18 @@ def simplifyFunc(aFunc):
             return newVars[0]
         else:
             return Function("+",newVars)
-    elif(aFunc.type=="*"):
+    elif(aFunc.type=="*"):# si il y a un 0 on retourne la fonction constante 0, on regroupe les coefficient constants et si on a au moins deux variables on applique la distributivité
         newVars=[]
+        constVar=1
         for aVar in aFunc.vars:
             if(aVar.type!="const"):
                 newVars.append(aVar)
-            elif(aVar.vars==0):
-                return cf(0)
-            elif(aVar.vars!=1):
-                newVars.append(aVar)
+            else:
+                constVar*=aVar
+        if(constVar==0):
+            return cf(0)
+        if(constVar!=1):
+            newVars.append(cf(constVar))
         if(len(newVars)==0):
             return cf(1)
         elif(len(newVars)==1):
@@ -166,15 +177,18 @@ def simplifyFunc(aFunc):
                 return aFunc.vars[0]
     return aFunc
 
-def ApplyMultDistributivity(aFunc):
-    argPows=[] # liste qui enregistre la puissance auxquels les arguments sont par exemple pour: 2xsin(x)sin(x) on aura {Function(x,None),1,Function("sin",Function("x",None)),2}
+def ApplyMultDistributivity(aFunc): #fonction qui pour 2*x*x*sin(x)*sin(x)*sin(x) renvoie 2*x^2*sin(x)^3
+    """
+    à utiliser avec précaution
+    """
+    argPows=[] # liste qui enregistre les arguments et la puissance auxquels les arguments sont par exemple pour: 2xsin(x)sin(x) on aura {Function(x,None),cf(1),Function("sin",Function("x",None)),cf(2)}
     constArg=1
     for aVar in aFunc.vars:
         if aVar.type=="const":
             constArg*=aVar.vars
         elif aVar.type=="^":
             if(len(aVar.vars)!=2):
-                print("Fonction mal développée!",aVar.vars,aVar.type,aVar,aVar.vars[0].type)
+                print("Fonction mal développée!")
                 print(VerifyVarsCoherence(aFunc))
                 exit()
             else:
@@ -182,13 +196,12 @@ def ApplyMultDistributivity(aFunc):
                     argPows.append(aVar.vars[0])
                     argPows.append(aVar.vars[1])
                 else:
-                    argPows[argPows.index(aVar.vars[0])+1]+=aVar.vars[1]
+                    argPows[argPows.index(aVar.vars[0])+1].vars+=aVar.vars[1].vars
         elif(aVar not in argPows):
             argPows.append(aVar)
             argPows.append(cf(1))
         else:
-            argPows[argPows.index(aVar)+1]+=cf(1)
-            argPows[argPows.index(aVar)+1]=simplifyFunc(argPows[argPows.index(aVar)+1])
+            argPows[argPows.index(aVar)+1].vars+=1
     multVars=[cf(constArg)]
     for index in range(len(argPows)//2):
         argPows[index*2+1]=simplifyFunc(argPows[index*2+1])
@@ -198,11 +211,57 @@ def ApplyMultDistributivity(aFunc):
 
         
 def developAndSimplifyFunc(aFunc):
+    """
+    à utiliser avec précaution
+    """
     aFunc=developFunc(aFunc)
     aFunc=simplifyFunc(aFunc)
     if(verifReferencesDuplicity(aFunc,[])):
         print("Certaines références dans la fonctions sont dupliquées!")
     return aFunc
+
+def isPolynomial(aFunc):
+    aFunc=developAndSimplifyFunc(aFunc)
+    if(isMonomial(aFunc)):
+        return True
+    if(aFunc.type=="+"):
+        for anArg in aFunc.vars:
+            if(not isMonomial(anArg)):
+                return False
+        return True
+    return False
+def isMonomial(aFunc):
+    if(isConst(aFunc)):
+        return True
+    if(aFunc.type=="x"):
+        return True
+    if(aFunc.type=="*"):
+        for anArg in aFunc.vars:
+            if(not isConst(anArg) and not isMonomial(anArg)):
+                return False
+        return True
+    if(aFunc.type=="^"):
+        if(len(aFunc.vars)!=2):
+            raise ValueError("La fonction doit être simplifiée!")
+        if(aFunc.vars[0].type=="x" and isConst(aFunc.vars[1])):
+            return True
+    return False
+            
+def isConst(aFunc):
+    if(aFunc.type=="const"):
+        return True
+    if(aFunc.type=="x"):
+        return False
+    if(aFunc.type in BasicFunctionsNames):
+        if(not isConst(aFunc.vars)):
+            return False
+        else:
+            return True
+    for anArg in aFunc.vars:
+        if(not isConst(anArg)):
+            return False
+    return True
+
 
 
 

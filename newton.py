@@ -50,7 +50,12 @@ def t0f_newton(f: callable, a, b, nb_de_valeurs_a_calculer=10**4, nb_d_itteratio
     return zeros
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  
+    """__name__ c'est le nom que python va donner au programme quand il va être lancé, 
+    donc si __name__ == '__main__' ça veut dire que ce programme est le programme principal.
+    Comme ce bout de code est un exemple d'utilisation, il va être exécuté que si on lance ce fichier python.
+    Si on lance le fichier global de recherche de zéros, cet exemple sera pas exécuté."""
+    
     # exemples de bonne utilisation des fonctions
 
     from math import sin

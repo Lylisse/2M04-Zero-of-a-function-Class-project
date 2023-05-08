@@ -3,6 +3,7 @@ from zeros_avec_taylor import i1z_sturm_taylor
 
 
 def t0i_bracketing_dichotomie(f: callable, a: float, b: float, epsilon=10**-10):
+    #le epsilon est la marge d'erreur dans laquelle la fonction doit être pour être considérée comme un zéro, pour f(x):x->x et epsilon=1, les zéros sont i appartenant à [-1,1]
     c = (a + b) * 0.5  # moyenne entre a et b
     while abs(f(c)) > epsilon:
         if f(a) * f(c) < 0:  # f(a) et f(c) ont le même signe

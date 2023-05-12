@@ -22,6 +22,13 @@ def derivee(f, h=10 ** -6):
 
     return f_prime
 
+def derivee_seconde(f, h=10 ** -5):
+    def f_double_prime(x):
+        return (f(x + h) - 2 * f(x) + f(x - h)) / (h ** 2)
+
+    return f_double_prime
+
+
 if __name__ == '__main__':
     # rien de particulier à écrire
     # 😃

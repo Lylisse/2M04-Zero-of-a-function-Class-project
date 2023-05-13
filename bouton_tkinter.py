@@ -5,7 +5,9 @@ from tkinter import *
 # on importe le module tkinter qui nous permettra de cliquer sur un bouton pour afficher le graphique et les racines de la fonction
 from tkinter import ttk
 # On importe un sous-module de tkinter pour pouvoir l'utiliser en dehors de l'objet
-from dichotomies import t0f_bracketing_dichotomie, t0f_bracketing_regula_falsi
+
+
+from dichotomies import t0f_bracketing_dichotomie, t0f_bracketing_regula_falsi, t0f_sturm_taylor_dichotomie
 from bracketing import t0f_bracketing
 from haley import t0f_haley
 from newton import t0f_newton
@@ -15,7 +17,7 @@ from fonctions_utiles import make_function_from_string
 from fonctions_utiles import plot_function
 
 
-toutes_les_methodes = ['t0f_haley', 't0f_newton', 't0f_bracketing', 't0f_bracketing_dichotomie', 't0f_bracketing_regula_falsi']
+toutes_les_methodes = ['t0f_haley', 't0f_newton', 't0f_bracketing', 't0f_bracketing_dichotomie', 't0f_bracketing_regula_falsi', 't0f_sturm_taylor_dichotomie']
 
 
 def calculate_zeros(method, function, interval):
@@ -34,14 +36,6 @@ def calculate_zeros(method, function, interval):
     except:
         errorLabel.config(text=intervalerror)
 
-    """if method == "method1":
-        try:
-            fct_zeros = t0f_bracketing_dichotomie(make_function_from_string(function, fctvariable), interval[0],
-                                                  interval[1])
-        except:
-            errorLabel.config(text=fcterror)
-    elif method == "method2":
-        pass"""
     try:
         fct_zeros = eval(f'{method}(make_function_from_string(function, fctvariable), interval[0], interval[1])')
         display_graph(make_function_from_string(function, fctvariable), np.linspace(interval[0], interval[1], 10_000),
@@ -113,6 +107,10 @@ fin_intervalle_entry.grid(column=3, row=2)
 ttk.Label(mainframe, text="Intervalle").grid(column=4, row=2)
 
 methode_1_select = StringVar()
+
+# ttk.Checkbutton(mainframe, text="dichotomie", variable=methode_1_select, onvalue="t0f_bracketing_dichotomie").grid(column=1, row=3)
+
+# ttk.Checkbutton(mainframe, text="regula falsi", variable=methode_1_select, onvalue="t0f_bracketing_regula_falsi").grid(column=2, row=3)
 
 for i, nom_methode in enumerate(toutes_les_methodes):
     ttk.Checkbutton(mainframe, text=nom_methode.replace('_', ' ').replace('t0f', '', ), variable=methode_1_select,

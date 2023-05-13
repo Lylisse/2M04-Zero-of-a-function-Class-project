@@ -1,18 +1,19 @@
 import numpy as np
 
-def i1z_bracketing(f: callable, a: float, b: float, nb_de_valeurs_a_calculer=10 ** 4) -> (list, list):
+def ti1z_bracketing(f: callable, a: float, b: float, nb_de_valeurs_a_calculer=10 ** 4) -> (list, list):
     """
-    Le but de cette fonction est, pour une fonction "f" et un intervalle (a, b) donnés, calculer un très grand nombre
-    de valeurs dans cet intervalle, dans l'idée que si on calcule beaucoup de valeurs, on devrait bien, à un moment,
-    tomber complètement par hazard sur une valeur proche d'un zéro. On considère que l'on a trouvé une valeur proche
-    d'un zéro lors qu'on change de signe ; si par exemple f(1.232) < 0 < f(1.233), alors 1.232 et 1.233 sont proche d'un
-    zéro de f. Plus spécifiquement, en supposant que f est continue, il existe un zéro dans l'intervalle (1.232, 1.233).
+    Le but de cette fonction, dont le nom veut dire "trouver des intervalles avec 1 zéro bracketing" est de... trouver des intervalles
+    avec 1 zéro. Elle calcule un très grand nombre de valeurs dans un intervalle donné, pour une fonction donnée.
+    Supposons que l'on a calculé les valeurs f(1.23) = -0.02 et f(1.24) = 0.03. Puisque il y a un changement de signe, il y a forcément
+    un zéro de la fonction se trouvant dans l'intervalle ]-0.02, 0.03[.
+    Ensuite, on peut soit simplement prendre la valeur au milieu (ici 1.235) et dire que ce sera un zéro (c'est ce que fait t0f_bracketing) ;
+    soit on peut raffiner avec d'autres méthodes (comme par exemples celles dans dichotomie).
 
-    La fonction "bracketing" retourne une liste d'intervalles tels que décris ci-dessus, dans lesquels on a observé un
+    La fonction "ti1z_bracketing" retourne une liste d'intervalles tels que décris ci-dessus, dans lesquels on a observé un
     changement de signe ; et une liste (qui sera très surement vide) contenant les accidentels zéros qui auraient été
-    trouvés. Par exemple si on vérifie f(1.232) et on trouve que f(1.232) == 0, alors on l'ajoutera à cette liste.
+    trouvés. Par exemple si on vérifie f(1.23) et on trouve que f(1.23) == 0, alors on l'ajoutera à cette liste.
 
-    La fonction "bracketing" prend comme paramètres:
+    La fonction "ti1z_bracketing" prend comme paramètres:
     la fonction réelle "f"
     l'intervalle (a, b)
     le nombre de valeurs que l'on souhaite calculer, i.e. si on demande 100 valeurs sur l'intervalle (0, 1),
@@ -50,7 +51,15 @@ def i1z_bracketing(f: callable, a: float, b: float, nb_de_valeurs_a_calculer=10 
     return solutions_trouvees_par_hazard, zeros_approx
 
 def t0f_bracketing(f: callable, a: float, b: float, nb_de_valeurs_a_calculer=10 ** 4) -> list:
-    zeros_accidentellement_trouves, intervalles_1_zero = i1z_bracketing(f, a, b, nb_de_valeurs_a_calculer)
+    """Cette fonction fait le role décrit dans le commentaire en haut de la fonction précédente.
+    Elle prends un fonction et un intervalle et calcule un grand nombre de valeurs.
+
+    Si certaines d'entre elles vallent 0, cool.
+    A chaque fois qu'une valeur à un signe différent de la précédente, par exemple
+    f(1.23) < 0 < f(1.24),
+    on considère que f(1.235) est à peu près égal à zéro. Cette valeur pourra être raffinée, par exemple avec la méthode de newton."""
+    
+    zeros_accidentellement_trouves, intervalles_1_zero = ti1z_bracketing(f, a, b, nb_de_valeurs_a_calculer)
 
     valeurs_proche_d_un_zero = []
     for intervalle_1_zero in intervalles_1_zero:
@@ -67,7 +76,7 @@ if __name__ == '__main__':
     def fonction(x):
         return sin(x ** 2)
 
-    exemple1 = i1z_bracketing(fonction, -3, 3)
+    exemple1 = ti1z_bracketing(fonction, -3, 3)
     print(f'{exemple1 = }')
     # -> exemple1 = ([], [(-2.5068000000000543, -2.5062000000000544), (-1.7730000000001351, -1.7724000000001352), (1.7723999999994744, 1.7729999999994739), (2.506199999999394, 2.5067999999993935)])
     # chacun des intervalles dans la 2ème liste contient 1 zéro
@@ -83,10 +92,10 @@ if __name__ == '__main__':
     # Plus généralement, ce genre de zéro est très dur à trouver pour à peu près toutes les méthodes, car il y a très peu
     # de moyen de les prédire
 
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    

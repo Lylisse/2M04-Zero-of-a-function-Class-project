@@ -63,7 +63,7 @@ def nombre_de_racines_simples(suite_polynome, a, b):  # on cherche le nombre de 
     return nb_changements_de_signe(suite_eval_a) - nb_changements_de_signe(suite_eval_b)
 
 
-def i1z_suite_sturm(suite_polynome, a, b, intervalle_minimum=10 ** -5):  # Cette fonction permet d'avoir dans un intervalle donné une seule racine
+def ti1z_suite_sturm(suite_polynome, a, b, intervalle_minimum=10 ** -5):  # Cette fonction permet d'avoir dans un intervalle donné une seule racine
     """Cette fonction nous permet de séparer l'intervalle [a, b] en intervalles plus petit qui n'ont qu'une seule racine
     Si on a plus que 1 racine on spépare notre intervalle en intervalles plus petits de sorte qu'il n'ait que une racine simple
 
@@ -79,21 +79,21 @@ def i1z_suite_sturm(suite_polynome, a, b, intervalle_minimum=10 ** -5):  # Cette
     elif nb_de_racines_simples_suite == 0:  # Si l'intervalle n'a pas de racine alors on le "néglige"
         return tuple()
     else:
-        return i1z_suite_sturm(suite_polynome, a, (2 * a + b) / 3, intervalle_minimum=intervalle_minimum) + \
-               i1z_suite_sturm(suite_polynome, (2 * a + b) / 3, (a + 2 * b) / 3, intervalle_minimum=intervalle_minimum) + \
-               i1z_suite_sturm(suite_polynome, (a + 2 * b) / 3, b, intervalle_minimum=intervalle_minimum)
+        return ti1z_suite_sturm(suite_polynome, a, (2 * a + b) / 3, intervalle_minimum=intervalle_minimum) + \
+               ti1z_suite_sturm(suite_polynome, (2 * a + b) / 3, (a + 2 * b) / 3, intervalle_minimum=intervalle_minimum) + \
+               ti1z_suite_sturm(suite_polynome, (a + 2 * b) / 3, b, intervalle_minimum=intervalle_minimum)
     # Ici on sépare l'intervalle [a, b] en trois intervalles plus petits
     # Utiliser 3 plutot que 2 m'a (Eden) économisé quelques bugs mais je trouve ça assez moche
     # Demandez-moi pour plus de détail si vous voulez
 
 
-def i1z_polynome(polynome, a, b, intervalle_minimum=10 ** -3):  # Cette fonction permet d'avoir dans un intervalle donné une seule racine
+def ti1z_polynome(polynome, a, b, intervalle_minimum=10 ** -3):  # Cette fonction permet d'avoir dans un intervalle donné une seule racine
     """Cette fonction nous permet de séparer l'intervalle [a, b] en intervalles plus petit qui n'ont qu'une seule racine
     Si on a plus que 1 racine on spépare notre intervalle en intervalles plus petits de sorte qu'il n'ait que une racine simple"""
 
     suite_polynome = suite_de_Sturm(polynome)
 
-    intervalles_1_zero = i1z_suite_sturm(suite_polynome, a, b, intervalle_minimum)
+    intervalles_1_zero = ti1z_suite_sturm(suite_polynome, a, b, intervalle_minimum)
 
     return intervalles_1_zero
 
@@ -103,14 +103,14 @@ if __name__ == '__main__':
 
     fonction_polynomiale1 = Polynomial([0, 1]) * Polynomial([-1, 1]) * Polynomial([-2, 1]) * Polynomial([3, 1]) * Polynomial([2, 1])
 
-    exemple1 = i1z_polynome(fonction_polynomiale1, -5, 5)
+    exemple1 = ti1z_polynome(fonction_polynomiale1, -5, 5)
     print(f'{exemple1 = }')
     # -> exemple1 = ((-5, -2.5), (-2.5, -1.25), (-1.25, 0.0), (0.0, 1.25), (1.25, 2.5))
     # chacun des intervalles contient 1 zéro
 
     fonction_polynomiale2 = Polynomial([0, 1]) * Polynomial([-1, 1]) * Polynomial([-1, 1]) * Polynomial([3, 1]) * Polynomial([2, 1])
 
-    exemple2 = i1z_polynome(fonction_polynomiale2, -5, 5)
+    exemple2 = ti1z_polynome(fonction_polynomiale2, -5, 5)
     print(f'{exemple2 = }')
     # -> exemple2 = ((-5, -2.5), (-2.5, -1.25), (-1.25, 0.0))
     # chacun des intervalles contient 1 zéro

@@ -1,10 +1,24 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
-def plot_function(f, x_values, *args, **kwargs):
-    y_values = []
+def plot_function(f, x_values_list, zeros, *args, **kwargs):
+    x_values = np.array(x_values_list)
+    y_values = np.array([])
+    holelist= []
     for x in x_values:
-        y_values.append(f(x))
+        try:
+            y_values = np.append(y_values, f(x))
+        except:
+            y_values = np.append(y_values, np.nan)
+            holelist.append(x)
     plt.plot(x_values, y_values, *args, **kwargs)
+    for z in zeros:
+        zy = [0]*len(zeros)
+    try:
+        plt.plot(z, zy, linestyle='none', marker='*', markersize=16)
+        plt.plot(holelist, zy, linestyle='none', marker='O', markersize=16)
+    except:
+        pass
 
 def make_function_from_string(str_func, variable_name='x'):
     """Permet de transformer le string d'une fonction (str_func) en fonction python qui retourne le résultat de la valeur entrée

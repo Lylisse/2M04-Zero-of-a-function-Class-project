@@ -1349,7 +1349,7 @@ def erreur_proportionelle(x: float, y: float) -> float:
         return 10**100
     return abs(max(x, y)/min(x, y) - 1)
 
-def trouver_intervalle_proche_zero(f: callable, taylor_x0: Polynomial, x0: float, delta: float, marge_erreur: float, min_delta: float):
+def trouver_intervalle_proche_zero(f: callable, taylor_x0: Polynomial, x0: float, delta: float, marge_erreur: float, min_delta: float, max_delta: float):
     def point_valide(x):
         return erreur_proportionelle(f(x), taylor_x0(x)) <= marge_erreur
 
@@ -1367,6 +1367,8 @@ def trouver_intervalle_proche_zero(f: callable, taylor_x0: Polynomial, x0: float
             else:
                 while point_valide(x0 - delta_a):
                     delta_a *= mul_factor
+                    if delta_a > max_delta:
+                        return x0 - delta_a, x0 + delta_b
                 delta_a /= mul_factor
 
             if not point_valide(x0 + delta_b):
@@ -1377,6 +1379,8 @@ def trouver_intervalle_proche_zero(f: callable, taylor_x0: Polynomial, x0: float
             else:
                 while point_valide(x0 + delta_b):
                     delta_b *= mul_factor
+                    if delta_b > max_delta:
+                        return x0 - delta_a, x0 + delta_b
                 delta_b /= mul_factor
 
         return x0 - delta_a, x0 + delta_b
@@ -1389,7 +1393,7 @@ def taylor_par_morceaux(f: callable, taylor_func: callable, a: float, b: float, 
     if nombre_max == 0:
         return dict()
 
-    intervalle_ou_ca_marche = trouver_intervalle_proche_zero(f, taylor_en_x0, x0, delta, marge_erreur, 10**-3)
+    intervalle_ou_ca_marche = trouver_intervalle_proche_zero(f, taylor_en_x0, x0, delta, marge_erreur, 10**-3, abs(b-a))
 
 
     a_valable, b_valable = intervalle_ou_ca_marche
@@ -1447,15 +1451,6 @@ if __name__ == '__main__':
     # chacun des intervalles dans la 1ère liste contient 1 zéro
     # la deuxième liste donne les intervalles ayant été explorés par la fonction.
     # pour une fonction telle que sin(1/x) par exemple, ce n'est pas trivial que ce soit l'ensemble de l'intervalle
-
-
-
-
-
-
-
-
-
 
 
 

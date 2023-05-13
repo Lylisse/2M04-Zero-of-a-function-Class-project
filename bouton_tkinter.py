@@ -114,10 +114,6 @@ ttk.Label(mainframe, text="Intervalle").grid(column=4, row=2)
 
 methode_1_select = StringVar()
 
-# ttk.Checkbutton(mainframe, text="dichotomie", variable=methode_1_select, onvalue="t0f_bracketing_dichotomie").grid(column=1, row=3)
-
-# ttk.Checkbutton(mainframe, text="regula falsi", variable=methode_1_select, onvalue="t0f_bracketing_regula_falsi").grid(column=2, row=3)
-
 for i, nom_methode in enumerate(toutes_les_methodes):
     ttk.Checkbutton(mainframe, text=nom_methode.replace('_', ' ').replace('t0f', '', ), variable=methode_1_select,
                     onvalue=nom_methode).grid(row=3, column=i + 1)

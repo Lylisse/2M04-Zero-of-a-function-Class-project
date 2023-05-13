@@ -5,11 +5,17 @@ from tkinter import *
 # on importe le module tkinter qui nous permettra de cliquer sur un bouton pour afficher le graphique et les racines de la fonction
 from tkinter import ttk
 # On importe un sous-module de tkinter pour pouvoir l'utiliser en dehors de l'objet
-from dichotomies import t0f_bracketing_dichotomie
+from dichotomies import t0f_bracketing_dichotomie, t0f_bracketing_regula_falsi
+from bracketing import t0f_bracketing
+from haley import t0f_haley
+from newton import t0f_newton
 
 from fonctions_utiles import make_function_from_string
 
 from fonctions_utiles import plot_function
+
+
+toutes_les_methodes = ['t0f_haley', 't0f_newton', 't0f_bracketing', 't0f_bracketing_dichotomie', 't0f_bracketing_regula_falsi']
 
 
 def calculate_zeros(method, function, interval):
@@ -18,6 +24,7 @@ def calculate_zeros(method, function, interval):
         fctvariable = 'x'  # detect_variable(function)
     except:
         errorLabel.config(text=varerror)
+
     try:
         if float(interval[1]) > float(interval[0]):
             interval = [float(interval[0]), float(interval[1])]
@@ -26,17 +33,23 @@ def calculate_zeros(method, function, interval):
             raise Exception("")
     except:
         errorLabel.config(text=intervalerror)
-    if method == "method1":
+
+    """if method == "method1":
         try:
             fct_zeros = t0f_bracketing_dichotomie(make_function_from_string(function, fctvariable), interval[0],
                                                   interval[1])
         except:
             errorLabel.config(text=fcterror)
     elif method == "method2":
-        pass
-    else:
+        pass"""
+    try:
+        fct_zeros = eval(f'{method}(make_function_from_string(function, fctvariable), interval[0], interval[1])')
+        display_graph(make_function_from_string(function, fctvariable), np.linspace(interval[0], interval[1], 10_000),
+                      fct_zeros)
+
+    except NameError:
         errorLabel.config(text=nomethodselecterror)
-    display_graph(make_function_from_string(function, fctvariable), np.linspace(interval[0], interval[1], 10_000), fct_zeros)
+
 
 
 def detect_variable(function):
@@ -101,9 +114,14 @@ ttk.Label(mainframe, text="Intervalle").grid(column=4, row=2)
 
 methode_1_select = StringVar()
 
-ttk.Checkbutton(mainframe, text="dichotomie", variable=methode_1_select, onvalue="method1").grid(column=1, row=3)
+# ttk.Checkbutton(mainframe, text="dichotomie", variable=methode_1_select, onvalue="t0f_bracketing_dichotomie").grid(column=1, row=3)
 
-ttk.Checkbutton(mainframe, text="méthode 2", variable=methode_1_select, onvalue="method2").grid(column=2, row=3)
+# ttk.Checkbutton(mainframe, text="regula falsi", variable=methode_1_select, onvalue="t0f_bracketing_regula_falsi").grid(column=2, row=3)
+
+for i, nom_methode in enumerate(toutes_les_methodes):
+    ttk.Checkbutton(mainframe, text=nom_methode.replace('_', ' ').replace('t0f', '', ), variable=methode_1_select,
+                    onvalue=nom_methode).grid(row=3, column=i + 1)
+
 
 ttk.Button(mainframe, text="calculate_zeros",
            command=lambda: calculate_zeros(methode_1_select.get(), fonction_entry.get(),
@@ -121,3 +139,16 @@ fonction_entry.focus()
 
 mainloop()
 # la fonction mainloop initialise tkinter en général
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -15,7 +15,11 @@ from fonctions_utiles import plot_function
 def calculate_zeros(method, function, interval):
     # on choisit quelle méthode utilisée puis envoyons en arguments la fonction et l'intervalle sous la forme suivante:"[{fonction}, {début de l'intervalle},  {fin de l'intervalle}]"
     try:
+<<<<<<< Updated upstream
         fctvariable = 'x'  # detect_variable(function)
+=======
+        fctvariable = "x"
+>>>>>>> Stashed changes
     except:
         errorLabel.config(text=varerror)
     try:
@@ -27,11 +31,18 @@ def calculate_zeros(method, function, interval):
     except:
         errorLabel.config(text=intervalerror)
     if method == "method1":
+<<<<<<< Updated upstream
         try:
             fct_zeros = t0f_bracketing_dichotomie(make_function_from_string(function, fctvariable), interval[0],
                                                   interval[1])
+=======
+        fct_zeros = t0f_bracketing_dichotomie(make_function_from_string(function, fctvariable), interval[0], interval[1])
+        """try:
+            fct_zeros = t0f_bracketing_dichotomie(make_function_from_string(function, fctvariable), interval[0], interval[1])
+>>>>>>> Stashed changes
         except:
-            errorLabel.config(text=fcterror)
+            errorLabel.config(text=fcterror)"""
+
     elif method == "method2":
         pass
     else:

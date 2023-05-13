@@ -1,3 +1,4 @@
+import mpmath as mp
 import matplotlib.pyplot as plt
 import numpy as np
 from InputInterpretation import textToPythonInterpretable
@@ -17,7 +18,11 @@ def make_function_from_string(str_func, variable_name='x',lib="mpmath"):
     f = make_function_from_string('y ** 2', 'y')
     print(f(3))
     -> 9"""
+<<<<<<< Updated upstream
     return eval(f'lambda {variable_name}: {textToPythonInterpretable(str_func,funcNames= "mpmath")}')
+=======
+    return eval(f'lambda {variable_name}: {textToPythonInterpretable(str_func,"mpmath")}')
+>>>>>>> Stashed changes
 
 def derivee(f, h=10 ** -6):
     def f_prime(x):

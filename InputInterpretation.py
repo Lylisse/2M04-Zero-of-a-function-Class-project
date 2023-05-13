@@ -4,18 +4,19 @@ from random import *
 FuncTypes=["+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan"]
 BasicFunctionsNames=["sin","cos","tan","arcsin","arccos","arctan","exp","ln"]
 mpMathFunctionNames=["mp.sin","mp.cos","mp.tan","mp.asin","mp.acos","mp.atan","mp.exp","mp.ln"]
+numpyFunctionNames=["np.sin","np.cos","np.tan","np.arcsin","np.arccos","np.arctan","np.exp","np.log"]
 FuncStr="sincostanarccosarctanexpln"
 operatorStr="-+*/^"
 class Function: #on définit les propriétés de l'object fonction
     def __init__(self,atype,funcVars):
-        self.type=atype # parmi ces types"+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan" #on veut que la fonction soit simple pour ensuite l'analyser
-        self.vars=funcVars # une chaine contenant les variables de la fonction 
+        self.type=atype # on définit le type de fonction parmi ces types"+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan"
+        self.vars=funcVars # une chaine contenant les variables de la fonction, à noter que les fonctionx et const en ont pas
         #(par exemple pour 5x + 13 on a vars=[5x,13] et type="+")
         if(atype in ["+","/","^","-"] and len(funcVars)<2):
             print("invalid number of args!",atype)# il faut au moins deux variable pour définire une addition, division, etc...
     def __str__(self):#on définit ce qu'il va arriver lorsque on utilise la fonction str(<notre object fonction>) dans le code
         return SimplifyEasyParenth(self.toString())#on retourne la fonction en la transformant en une chaine de caractère (avec la fonction qu'on définit juste après) et on utilise la fonction qui simplifie les parenthèses pour que ça soit propre
-    def __mul__(self, other):#  ici on  implote les operations arithmetiques binaire (+,-,*,/,**,) ici on definit la multiplication
+    def __mul__(self, other):# ici on definit la multiplication
         if(type(other)==int or type(other)== float):
             other=Function("const", other)
         return Function("*",[self,other])
@@ -148,8 +149,9 @@ def addUsefullParenths(initialText,triggerChar,chartypes=None):
 
 
 def standardizeFunc(text):#fonction qui par exemple renvoie 2*x pour 2x
-    text.replace(" ","")#on enlève les espaces
-    text.replace("**","^")#on remplace "**" par "^"; le symbole utilisé pour les puissances
+    text=text.replace("exp","eep")
+    text=text.replace(" ","")#on enlève les espaces
+    text=text.replace("**","^")#on remplace "**" par "^"; le symbole utilisé pour les puissances
     
     text=addUsefullParenths(text,"^")
     text=addUsefullParenths(text,"/")
@@ -167,6 +169,7 @@ def standardizeFunc(text):#fonction qui par exemple renvoie 2*x pour 2x
         if(charType == "numb" and nextCharType not in ["operator",")","numb"]):
             newText+="*"
     newText+= text[-1]
+    newText= newText.replace("eep","exp")
         
     return SimplifyEasyParenth(newText)
 
@@ -393,13 +396,15 @@ def VerifyVarsCoherence(aFunc):
     print("invalid var!#3",aFunc.type)
     return False
 
-def textToPythonInterpretable(text,funcNames="basic"):
+def textToPythonInterpretable(text,library=None):
     text=standardizeFunc(text)
     text=text.replace("^","**")
-    if(funcNames=="mpmath"):
+    if(library=="mpmath"):
         for nameIndex in range(len(BasicFunctionsNames)):
             text=text.replace(BasicFunctionsNames[nameIndex],mpMathFunctionNames[nameIndex])
-
+    if(library=="numpy"):
+        for nameIndex in range(len(BasicFunctionsNames)):
+            text=text.replace(BasicFunctionsNames[nameIndex],numpyFunctionNames[nameIndex])
 
     return text
 

@@ -10,139 +10,174 @@ operatorStr="-+*/^"
 class Function: #on définit les propriétés de l'object fonction
     def __init__(self,atype,funcVars):
         self.type=atype # on définit le type de fonction parmi ces types"+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan"
-        self.vars=funcVars # une chaine contenant les variables de la fonction, à noter que les fonctionx et const en ont pas
+        self.vars=funcVars # une chaine contenant les variables de la fonction, à noter que les fonction de type x n'en ont pas
         #(par exemple pour 5x + 13 on a vars=[5x,13] et type="+")
         if(atype in ["+","/","^","-"] and len(funcVars)<2):
             print("invalid number of args!",atype)# il faut au moins deux variable pour définire une addition, division, etc...
     def __str__(self):#on définit ce qu'il va arriver lorsque on utilise la fonction str(<notre object fonction>) dans le code
         return SimplifyEasyParenth(self.toString())#on retourne la fonction en la transformant en une chaine de caractère (avec la fonction qu'on définit juste après) et on utilise la fonction qui simplifie les parenthèses pour que ça soit propre
-    def __mul__(self, other):# ici on definit la multiplication
+    
+    def __mul__(self, other):# ici on definit la multiplication à droite et à gauche example "2*x" a droite et "x*2" a gauche
         if(type(other)==int or type(other)== float):
-            other=Function("const", other)
+            other=Function("const", other)#si on a utilisé un nombre dans la multiplication, on le convertit en fonction constante
         return Function("*",[self,other])
-    def __rmul__(self, other):# ici on definit la proprietée de la multiplication a droite et a gauche example "2*x" a droite et "x*2" a gauche
+    def __rmul__(self, other):# on definit la multiplication à droite 
         if(type(other)==int or type(other)== float):
-            other=Function("const", other)
-        return Function("*",[self,other])
-    def __truediv__(self, other):# ici on definit la division
-        if(type(other)==int or type(other)== float):
+            other=Function("const", other)#si on a utilisé un nombre dans la multiplication, on le convertit en fonction constante
+        return Function("*",[other,self])
+    
+    def __truediv__(self, other):# on definit la division
+        if(type(other)==int or type(other)== float):#si on a utilisé un nombre de l'autre côté de la division, on le convertit en fonction constante
             other=Function("const", other)
         return Function("/",[self,other])
+    def __rtruediv__(self, other):# on definit la division à droite
+        if(type(other)==int or type(other)== float):#si on a utilisé un nombre de l'autre côté de la division, on le convertit en fonction constante
+            other=Function("const", other)
+        return Function("/",[other,self])
+    
     def __add__(self, other):#ici on definit l'addition
-        if(type(other)==int or type(other)== float):
+        if(type(other)==int or type(other)== float):#si on a utilisé un nombre de l'autre côté de l'addition, on le convertit en fonction constante
             other=Function("const", other)
         return simplifyUselessSubFuncs(Function("+",[self,other]))
+    def __radd__(self, other):#ici on definit l'addition
+        if(type(other)==int or type(other)== float):#si on a utilisé un nombre de l'autre côté de l'addition, on le convertit en fonction constante
+            other=Function("const", other)
+        return simplifyUselessSubFuncs(Function("+",[other,self]))
+    
     def __sub__(self, other):# ici on definit la soustraction
-        if(type(other)==int or type(other)== float):
+        if(type(other)==int or type(other)== float):#si on a utilisé un nombre de l'autre côté de la soustraction, on le convertit en fonction constante
             other=Function("const", other)
         return Function("-",[self,other])
+    def __rsub__(self, other):# ici on definit la soustraction
+        if(type(other)==int or type(other)== float): #si on a utilisé un nombre de l'autre côté de la soustraction, on le convertit en fonction constante
+            other=Function("const", other)
+        return Function("-",[other,self])
+    
     def __pow__(self, other):# ici on definit la puissance
-        if(type(other)==int or type(other)== float):
+        if(type(other)==int or type(other)== float): #si on a utilisé un nombre de l'autre côté de la puissance, on le convertit en fonction constante
             other=Function("const", other)
         return Function("^",[self,other])
-    def __eq__(self,other):
-        if(not isinstance(other,Function)):
+    def __rpow__(self, other):# ici on definit la puissance
+        if(type(other)==int or type(other)== float): #si on a utilisé un nombre de l'autre côté de la puissance, on le convertit en fonction constante
+            other=Function("const", other)
+        return Function("^",[other,self])
+    
+    def __eq__(self,other):#on définit la valeur à retourner lorsque l'on compare deux fonctions en utilisant "==" par exemple ( cf(1)==cf(2) ) = False, on essaie de pouvoir repondre par True le plus possible, mais l'important est de ne jamais répondre True si elle ne sont pas égales.
+        if(not isinstance(other,Function)): #si l'autre element (other) n'est pas un objet fonction alors on retourne False
             return False
-        if(self.type=="x" and other.type=="x"):
+        if(self.type!=other.type): #si les deux types de fonctions ne sont pas égales alors on retourne Faux
+            return False
+        if(self.type=="x" and other.type=="x"): #si les deux sont de type x on retourne True car ce sont les mêmes fonctions
             return True
-        if(self.type!=other.type):
-            return False
-        if(isinstance(self.vars,list) and isinstance(other.vars,list)):
-            for var in self.vars:
-                if var not in other.vars:
+        if(isinstance(self.vars,list) and isinstance(other.vars,list)):#si les variables des deux fonctions sont des listes
+            if(self.type in ["*","+"]): #si ce sont des fonctions commutatives
+                for var in self.vars:
+                    if var not in other.vars: #si il y a une variable d'une fonction qui n'est pas variable de l'autre alors ce sont deux fonctions différentes
+                        return False
+                for var in other.vars:
+                    if var not in self.vars:#si il y a une variable d'une fonction qui n'est pas variable de l'autre alors ce sont deux fonctions différentes
+                        return False
+            elif(self.type in ["-","/","^"]):#si ce sont des fonction partiellement commutatives (par ex: a-b-c = a-c-b != b-a-c)
+                if(self.vars[0]!=other.vars[0]):#si leur première variable n'est pas la même alors ce sont des fonctions différentes
                     return False
-            for var in other.vars:
-                if var not in self.vars:
-                    return False
-        elif(self.vars!=other.vars):
+                for var in self.vars[1:]:
+                    if var not in other.vars[1:]:#si il y a une variable d'une fonction qui n'est pas variable de l'autre en excluant leurs premières variables alors ce sont deux fonctions différentes
+                        return False
+                for var in other.vars[1:]:
+                    if var not in self.vars[1:]:#si il y a une variable d'une fonction qui n'est pas variable de l'autre en excluant leurs premières variables alors ce sont deux fonctions différentes
+                        return False
+        elif(self.vars!=other.vars):#si la variable des fonctions n'est pas une liste alors il suffit de regarder si leur variable est identique
             return False
         return True
     def deepcopy(self):
-        return deepcopy(self)
-    def toString(self):
+        return deepcopy(self)#fonction servant à retourner une copie de la fonction qui soit totalement détaché d'elle, car par exemple si on fait var1=cf(0), var2=var1, var2.vars=1 alors on aura aussi 1=var1.vars au lieu de 0 car lorsqu'on utilise var2=var1 les deux variables "stockent" ou "pointent" vers le même objet fonction, pour ne pas avoir se problème on utilisera var2 = var1.deepcopy()
+    def toString(self):#fonction qui retourne une chaine de caractères pour une fonction, à noter que ce n'est pas la fonction qui sera appelée directement par str(<objet Function>)
         if(self.type=="x"):
-            return "x"
-        elif(self.type=="const"):
-            return str(self.vars)
-        elif(self.type in ["-","+","*","/","^"]):
+            return "x" #si la fonction est de type "x" on retourne "x"; trivial
+        elif(self.type=="const"): #si la fonction est constante
+            return str(self.vars)#on retourne sa variable qui contient un nombre en le transformant en chaine de caractères avec str()
+        elif(self.type in ["-","+","*","/","^"]):#si la fonction est un opérateur "&" et que ses variables sont [a,b,c,d] alors on retourne a.toString()+ "&" + b.toString()+ "&" + c.toString()+ "&" + d.toString()
             returnText=""
-            for aFunc in self.vars:
-                returnText+=aFunc.toString()
-                returnText+=self.type
-            return "("+returnText[:-1]+")"
-        elif(self.type in BasicFunctionsNames):
+            for aFunc in self.vars: #pour chaque fonction (aFunc) parmi les variables de notre fonction (self)
+                returnText+=aFunc.toString()#on rajoute aFunc.toString()
+                returnText+=self.type#on rajoute le type de la fonction qui est normalement un des opérateurs "-","+","*","/","^"
+            return "("+returnText[:-1]+")"#on met la fonction entre parenthèses car on est peut-être dans le cas (a + b) * c où les parenthèses sont importantes
+        elif(self.type in BasicFunctionsNames):# si le type de la fonction est parmi les fonction basiques ("sin","cos","tan","arcsin","arccos","arctan","exp","ln") alors on retourne: le nom de la fonction(type)+"("+ sa variable en chaine de caractères+")", cela donnera par exemple "ln" +"("+"x"+")"= "ln(x)"
             return self.type+"("+self.vars.toString()+")"
-        else:
+        else:#si le type de fonction n'est pas parmi ceux ci-dessus on ne sait pas comment convertir la fonction en chaine de caractères
             print("impossible to convert func to str!")
             return ""
-def cf(number):
+        
+def cf(number): #on définit la fonction cf pour constant Func (fonction constante) qui nous servira à initialiser plus facilement une fonction constante
     return Function("const",number)
 
-def getCharTypes(text):
+def getCharTypes(text): 
+    """fonction qui retourne une liste décrivant le type de caractères d'un texte donné, cette fonction est utilisée pour interpréter des fonctions sous forme de texte et plus précisément pour pouvoir définir la priorité des opération par exemple pour 2x^2x on veut avoir 2*x^(2*x) pour cela on doit savoir que le 2 et le x sont "collés". Pour cela il y a 6 types de caractères différents:
+"(",")","var","numb","func","operator"   """
+
     charTypesArray=[]
     for index in range(len(text)):#pour chaque index de caractère du texte
         char=text[index]
         if(char==")"):
-            charTypesArray.append(")")
+            charTypesArray.append(")")#si le caractère est ")" son type est ")" (trivial)
         elif(char=="("):
-            charTypesArray.append("(")
+            charTypesArray.append("(")#si le caractère est "(" son type est "(" (trivial)
         elif(char=="x"):
-            charTypesArray.append("var")
+            charTypesArray.append("var")#si le caractère est "(" son type est "var" car c'est une variable
         elif(char.isnumeric() or char=="."):
-            charTypesArray.append("numb")
-        elif(char in FuncStr):
+            charTypesArray.append("numb")#si le caractère est numérique ou bien si c'est un point c'est un nombre, ainsi tous les caractères de "42.69" sont de type "numb"
+        elif(char in FuncStr):#si le caractère fait partie des caractères de fonction alors il est de type "func"
             charTypesArray.append("func")
-        elif(char in operatorStr):
+        elif(char in operatorStr):#si le caractère fait partie des caractères d'opérateur ("+-*/^") alors il est de type "operator"
             charTypesArray.append("operator")
         else:
-            raise Exception("texte invalide!")
+            raise Exception("texte invalide!")#si le caractère n'est rien de tout cela, le texte est invalide; il ne décrit pas une fonction
     return charTypesArray
 
-def getParenthEndIndex(text):
+def getParenthEndIndex(text):#fonction qui nous donne le moment oû les parenthèses se ferment pour des textes qui commencent par une ouverture de parenthèse par exemple pour "(123(567)(012))(678)" elle retourne 14
     if(text[0]!="("):
-        print("wrong input")
+        print("wrong input") #si le texte ne commence pas par une ouverture de parenthèse, le texte est invalide
 
-    parenthDepth=1
-    index=1
-    while parenthDepth!=0:
-        if(index==len(text)):
+    parenthDepth=1#on utilise une variable pour enregistrer la "profondeur" de parenthèse dans laquelle on est, par exemple (ici la profondeur est 1(ici 2(ici 3(ici 4, en fait c'est simplement le nombre de parenthèses qu'il me reste à fermer: 4)3)2)1)0
+    charIndex=0#on définit l'index de caractère du texte
+    while parenthDepth!=0:#tant que l'on est pas sorti de toutes les parenthèses (quand la profondeur est 0 c'est que c'est le cas)
+        charIndex +=1#on passe au prochain caractère; charIndex commencera en étant 1 et non 0 car on sait que le premier caractère est "(" c'est aussi pour cela qu'on commence avec parenthDepth=1
+        if(charIndex==len(text)):#si on a atteind la fin du texte et que l'on est toujours pas sorti de nos parenthèses c'est que le texte était invalide
             print("invalid input!")
-        if(text[index]=="("):
+        if(text[charIndex]=="("):#si le caractère correspondant ouvre une parenthèse il faut incrémenter parenthDepth car on s'enfonce dans les parenthèses 
             parenthDepth+=1
-        if(text[index]==")"):
+        if(text[charIndex]==")"):#si le caractère correspondant ferme une parenthèse il faut soustraire 1 à parenthDepth car on sort des parenthèses 
             parenthDepth-=1
-        index +=1
-    return index
+
+    return charIndex # on retourne l'index qui nous a permis de sortir de toute nos parenthèses
         
 
-def getLenOfMult(text, charTypes):
-    index=0
-    while index<len(text) and charTypes[index] not in ["operator",")"] :
-        if(charTypes[index]=="("):
-            index += getParenthEndIndex(text[index:])+index
-        else:
-            index+=1
-    return index
+def getLenOfMult(text, charTypes):#fonction qui donne la longueur d'une multiplication abrégée à partir du début d'un texte en fonction des types de caractères et du texte en question, par exemple pour "0x(3+56)*9" il renvoie 8 car après le "*" ce n'est plus une forme abrégée et que "0x(3+56)" contient 8 caractères
+    charIndex=0 #on commence au début du texte en prenant comme index de caractère 0
+    while charIndex<len(text) and charTypes[charIndex] not in ["operator",")"] : #tant que notre index de caractère est inférieur à la longueur du texte on est encore dans le texte, et on vérifie que le caractère sélectionné ne soit pas un opérateur ou une fin de parenthèse car cela mettrait fin à la séquence en effet pour "2x)x+2" on doit renvoyer 2 et non pas 4 
+        if(charTypes[charIndex]=="("):#si le caractère est une ouverture de parenthèse alors ce qu'il se passe dans la parenthèse ne nous interresse pas en effet pour "(1x+45)7+8" on retournera 8 car "(1x+45)7" est de longueur 8
+            charIndex = charIndex + getParenthEndIndex(text[charIndex:]) # pour cela on va donc regarder à quel index se ferme la parenthèse qui s'ouvre sur notre index (char index) et on va "déplacer" l'index à cette position. Par exemple si le texte est "0+2x(56+8)0*2": lorque charIndex=4 on remarque que la parenthèse s'ouvre, elle se referme 5 caractères après en 4+5=9
+        charIndex+=1 #on passe au prochain index de caractère
+    return charIndex #lorsque la multiplication abrégée se termine on retourne l'index du caractère qui nous donnera la longueur de la multiplication, par exemple pour "0x(34+6)8*0" la multiplication abrégée se termine en 9 qui nous donne la longueur en caractères de la multiplication. 
 
 
-def addUsefullParenths(initialText,triggerChar,chartypes=None):
-    if(chartypes==None):
-        chartypes=getCharTypes(initialText)
-
-    newText=""
-    lastIndex=0
-    index=initialText.find(triggerChar)
-    while index !=-1:
-        newText+=initialText[lastIndex:index+1]
-        multLen=getLenOfMult(initialText[index+1:],chartypes[index+1:])
+def addUsefullParenths(initialText,triggerChar): #fonction qui va rajouter des parenthèses lorsque elle sont utiles, par exemple pour 2^2x on veut 2^(2*x) et non pas (2^2)*x
+    
+    chartypes=getCharTypes(initialText) #on utilise getCharTypes pour obtenir les types de caractères de notre texte, par exemple pour "2^2x" on aura ["numb","operator","numb","var"] (var est l'abréviation de variable)
+    newText="" #on définit le nouveau texte comme étant une chaine de caractères vide
+    lastTermEndIndex=0 #lastTermEndIndex stocke l'index où s'est terminé le dernier terme, par exemple pour "0*2^4x+7^x", si triggerchar est '^', lastTermEndIndex sera d'abord 0 puis 5 puis 9 les termes respectifs seront "", "4x", "x". 
+    termStartIndex=initialText.find(triggerChar)#termStartIndex sera à chaque fois l'index de triggerchar, le caractère "déclencheur", par exemple dans "0^2+4^6" si triggerChar est '^' il sera 1 puis 5 puis -1 pour signifier qu'il ne reste plus de '^' dans le texte
+    while termStartIndex !=-1:
+        newText+=initialText[lastTermEndIndex:termStartIndex+1]
+        multLen=getLenOfMult(initialText[termStartIndex+1:],chartypes[termStartIndex+1:])
         if(multLen!=0):
-            newText+="("+initialText[index+1:index+multLen+1]+")"
-        lastIndex=index+multLen+1
-        if(initialText[index+1+multLen:].find(triggerChar)!=-1):
-            index=initialText[index+1+multLen:].find(triggerChar)+index+1+multLen
+            newText+="("+initialText[termStartIndex+1:termStartIndex+multLen+1]+")"
+        lastTermEndIndex=termStartIndex+multLen+1
+        if(initialText[termStartIndex+1+multLen:].find(triggerChar)!=-1):
+            termStartIndex=initialText[termStartIndex+1+multLen:].find(triggerChar)+termStartIndex+1+multLen
         else:
-            index=-1
-    newText+=initialText[lastIndex:]
+            termStartIndex=-1
+    newText+=initialText[lastTermEndIndex:]
 
 
     return newText

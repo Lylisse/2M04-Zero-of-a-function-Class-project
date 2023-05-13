@@ -3,15 +3,16 @@ from random import *
 
 FuncTypes=["+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan"]
 BasicFunctionsNames=["sin","cos","tan","arcsin","arccos","arctan","exp","ln"]
+mpMathFunctionNames=["mp.sin","mp.cos","mp.tan","mp.asin","mp.acos","mp.atan","mp.exp","mp.ln"]
 FuncStr="sincostanarccosarctanexpln"
-operatorStr="+*/^"
+operatorStr="-+*/^"
 class Function: #on définit les propriétés de l'object fonction
     def __init__(self,atype,funcVars):
         self.type=atype # parmi ces types"+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan" #on veut que la fonction soit simple pour ensuite l'analyser
         self.vars=funcVars # une chaine contenant les variables de la fonction 
         #(par exemple pour 5x + 13 on a vars=[5x,13] et type="+")
         if(atype in ["+","/","^","-"] and len(funcVars)<2):
-            print("invalid number of args!",atype)# example 5 il y a juste une partie a droite et pas a gauche, il manque ducoup la variable a gauche
+            print("invalid number of args!",atype)# il faut au moins deux variable pour définire une addition, division, etc...
     def __str__(self):#on définit ce qu'il va arriver lorsque on utilise la fonction str(<notre object fonction>) dans le code
         return SimplifyEasyParenth(self.toString())#on retourne la fonction en la transformant en une chaine de caractère (avec la fonction qu'on définit juste après) et on utilise la fonction qui simplifie les parenthèses pour que ça soit propre
     def __mul__(self, other):#  ici on  implote les operations arithmetiques binaire (+,-,*,/,**,) ici on definit la multiplication
@@ -392,9 +393,12 @@ def VerifyVarsCoherence(aFunc):
     print("invalid var!#3",aFunc.type)
     return False
 
-def textToPythonInterpretable(text):
+def textToPythonInterpretable(text,funcNames="basic"):
     text=standardizeFunc(text)
     text=text.replace("^","**")
+    if(funcNames=="mpmath"):
+        for nameIndex in range(len(BasicFunctionsNames)):
+            text=text.replace(BasicFunctionsNames[nameIndex],mpMathFunctionNames[nameIndex])
 
 
     return text

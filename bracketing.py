@@ -1,6 +1,7 @@
 import numpy as np
 
-def ti1z_bracketing(f: callable, a: float, b: float, nb_de_valeurs_a_calculer=10 ** 4) -> (list, list):
+def ti1z_bracketing(f: callable, a: float, b: float, nb_de_valeurs_a_calculer=10 ** 4):
+
     """
     Le but de cette fonction, dont le nom veut dire "trouver des intervalles avec 1 zéro bracketing" est de... trouver des intervalles
     avec 1 zéro. Elle calcule un très grand nombre de valeurs dans un intervalle donné, pour une fonction donnée.

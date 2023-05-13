@@ -2,6 +2,8 @@ from copy import deepcopy
 from random import *
 FuncTypes=["+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan"]
 BasicFunctionsNames=["sin","cos","tan","arcsin","arccos","arctan","exp","ln"]
+FuncStr="sincostanarccosarctanexpln"
+operatorStr="+*/^"
 class Function: #on définit les propriétés de l'object fonction
     def __init__(self,atype,funcVars):
         self.type=atype # parmi ces types"+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan" #on veut que la fonction soit simple pour ensuite l'analyser
@@ -9,7 +11,7 @@ class Function: #on définit les propriétés de l'object fonction
         #(par exemple pour 5x + 13 on a vars=[5x,13] et type="+")
         if(atype in ["+","/","^","-"] and len(funcVars)<2):
             print("invalid number of args!",atype)# example 5 il y a juste une partie a droite et pas a gauche, il manque ducoup la variable a gauche
-    def __str__(self):#on définit ce qu'il va arriver lorsque on utilise la fonction str(<notre object fonction>)
+    def __str__(self):#on définit ce qu'il va arriver lorsque on utilise la fonction str(<notre object fonction>) dans le code
         return SimplifyEasyParenth(self.toString())#on retourne la fonction en la transformant en une chaine de caractère (avec la fonction qu'on définit juste après) et on utilise la fonction qui simplifie les parenthèses pour que ça soit propre
     def __mul__(self, other):#  ici on  implote les operations arithmetiques binaire (+,-,*,/,**,) ici on definit la multiplication
         if(type(other)==int or type(other)== float):
@@ -73,19 +75,97 @@ class Function: #on définit les propriétés de l'object fonction
 def cf(number):
     return Function("const",number)
 
-def standardizeFunc(text): #fonction qui par exemple renvoie 2*x pour 2x
-    text.replace(" ","")
-    text.replace("**","^")
-    newText=text
-    for index in range(len(text)):
-        reverseIndex=len(text)-index-1
-        if text[reverseIndex] in [")","x"] and reverseIndex+1<len(text):
-            if text[reverseIndex+1].isnumeric() or text[reverseIndex+1]in["(","x"]:
-                newText=newText[:reverseIndex+1]+"*"+newText[reverseIndex+1:]
+def getCharTypes(text):
+    charTypesArray=[]
+    for index in range(len(text)):#pour chaque index de caractère du texte
+        char=text[index]
+        if(char==")"):
+            charTypesArray.append(")")
+        elif(char=="("):
+            charTypesArray.append("(")
+        elif(char=="x"):
+            charTypesArray.append("var")
+        elif(char.isnumeric() or char=="."):
+            charTypesArray.append("numb")
+        elif(char in FuncStr):
+            charTypesArray.append("func")
+        elif(char in operatorStr):
+            charTypesArray.append("operator")
+        else:
+            raise Exception("texte invalide!")
+    return charTypesArray
 
-        if text[reverseIndex] in ["(","x"] and reverseIndex-1>=0:
-            if text[reverseIndex-1].isnumeric():
-                newText=newText[:reverseIndex]+"*"+newText[reverseIndex:]
+def getParenthEndIndex(text):
+    if(text[0]!="("):
+        print("wrong input")
+
+    parenthDepth=1
+    index=1
+    while parenthDepth!=0:
+        if(index==len(text)):
+            print("invalid input!")
+        if(text[index]=="("):
+            parenthDepth+=1
+        if(text[index]==")"):
+            parenthDepth-=1
+        index +=1
+    return index
+        
+
+def getLenOfMult(text, charTypes):
+    index=0
+    while index<len(text) and charTypes[index] not in ["operator",")"] :
+        if(charTypes[index]=="("):
+            index += getParenthEndIndex(text[index:])+index
+        else:
+            index+=1
+    return index
+
+
+def addUsefullParenths(initialText,triggerChar,chartypes=None):
+    if(chartypes==None):
+        chartypes=getCharTypes(initialText)
+
+    newText=""
+    lastIndex=0
+    index=initialText.find(triggerChar)
+    while index !=-1:
+        newText+=initialText[lastIndex:index+1]
+        multLen=getLenOfMult(initialText[index+1:],chartypes[index+1:])
+        if(multLen!=0):
+            newText+="("+initialText[index+1:index+multLen+1]+")"
+        lastIndex=index+multLen+1
+        if(initialText[index+1+multLen:].find(triggerChar)!=-1):
+            index=initialText[index+1+multLen:].find(triggerChar)+index+1+multLen
+        else:
+            index=-1
+    newText+=initialText[lastIndex:]
+
+
+    return newText
+
+
+def standardizeFunc(text):#fonction qui par exemple renvoie 2*x pour 2x
+    text.replace(" ","")#on enlève les espaces
+    text.replace("**","^")#on remplace "**" par "^"; le symbole utilisé pour les puissances
+    
+    text=addUsefullParenths(text,"^")
+    text=addUsefullParenths(text,"/")
+    charTypesArray=getCharTypes(text)
+    newText=""
+    for charIndex in range(len(charTypesArray)-1):
+        char = text[charIndex]
+        newText+=char
+        charType=charTypesArray[charIndex]
+        nextCharType=charTypesArray[charIndex+1]
+        if(charType == ")" and nextCharType not in ["operator",")"]):
+            newText+="*"
+        if(charType == "var" and nextCharType not in ["operator",")"]):
+            newText+="*"
+        if(charType == "numb" and nextCharType not in ["operator",")","numb"]):
+            newText+="*"
+    newText+= text[-1]
+        
     return SimplifyEasyParenth(newText)
 
 
@@ -133,60 +213,86 @@ def verifParenthCoherence(text):#fonction qui verifie la coherence des parenthè
                 return False
     return True
 
-def GetOpenAndCloseParenthIndexs(text):#fonction qui va indexer les parenthèses d'une notation suivant leur ordre d'ouverture et qui va retourner une liste avec l'endroit de la chaine ou elles s'ouvrent et une liste avec l'endroit de la chaîne où elles se ferment par ex pour "(12+x)*3*(3-(4-x))" elle retourne:[0,9,12] et [5,16,17]
-    openedParenthsArray=[]
-    lastOpenedParenth=0
-    OpenIndexofParenths=[None]*text.count("(")
-    CloseIndexofParenths=[None]*text.count(")")
-    for index in range(len(text)):
-        char = text[index]
-        if char=="(":
-            OpenIndexofParenths[lastOpenedParenth]=index
-            openedParenthsArray.append(lastOpenedParenth)
-            lastOpenedParenth+=1
+def GetOpenAndCloseParenthIndexs(text):
+    """Fonction qui va indexer les parenthèses d'une notation suivant leur ordre d'ouverture et qui va retourner une liste avec l'endroit de la chaine ou elles s'ouvrent et une liste avec l'endroit de la chaîne où elles se ferment par ex pour:
+    "((x)x(x))" elle retourne:[0,1,5] et [8,3,7] en effet voici la liste de caractères selon leurs indexs: 
+    0:'(' 1:'(' 2:'x' 3:')' 4:'x' 5:'(' etc. 
+    On voit que des parenthèses s'ouvrent en 0, en 1 et en 5 elle se ferment en 3, en 7 et en 8
+    Cependant la première parenthèse qui s'ouvre se ferme en dernier c'est pour cela que notre fonction renvoie [8,3,7] comme indexes de fermeture et non pas [3,7,8]"""
+
+    #on veut savoir le numéro de la parenthèse que l'on ouvre, le numéro de la première sera donc 0, celui de la deuxième 1, troisième 2, etc.
+    parenthIndex=0
+    #pour être en mesure de savoir quelle parenthèse on ferme, on crée une liste où l'on stocke les numéros des parenthèses ouvertes
+    openedParenthsIndexes=[]
+    #on crée les listes selon le nombre de parenthèses qu'il y a dans le texte, si le texte est correct il devrait y avoir le même nombre de parenthèses ouvertes que de parenthèses fermées
+
+    OpenIndexofParenths=[None]*text.count("(") # [None]*n = [None,None,None,None,None,None, ....n fois] une liste de longueur n dans laquelle chaque valeur est nulle
+    # text.count("(") nous donne le nombre de fois qu'il y a de "(" dans le texte, par exemple pour "((xx(xx(" il retourne le nombre 4
+    CloseIndexofParenths=[None]*text.count(")")# [None]*n = [None,None,None,None,None,None, ....n fois] une liste de longueur n dans laquelle chaque valeur est nulle
+    # text.count(")") nous donne le nombre de fois qu'il y a de ")" dans le texte, par exemple pour ")x))x" il retourne le nombre 3
+
+    #on va parcourir le texte avec un index, si le texte est "bonjour" la valeur de index sera d'abord index=0 puis index=1 puis 2,3,4,5,6
+    for charIndex in range(len(text)):
+        char = text[charIndex]  #on prend le caractère à l'index donné, si par exemple index=3 et le texte est "bonjour" cela nous donne le "j", si index=0 cela nous donne le "b", si index=6 cela nous donne le "r", etc..
+        if char=="(": #si le caractère est une ouverture de parenthèse
+            OpenIndexofParenths[parenthIndex]=charIndex #on connait l'index à laquelle s'ouvre la 'n'-ième parenthèse, la variable parenthIndex stocke ce 'n' ainsi ou peut dire qu'on ouvre la parenthIndex-ième parenthèse. Du coup on définit dans la liste 'OpenIndexofParenths' la parenthIndex-ième comme étant l'index du caractère (charIndex)
+            openedParenthsIndexes.append(parenthIndex) #puisque on vient d'ouvrir la parenthIndex-ième parenthèse, on la rajoute a notre liste de parenthèses ouvertes
+            parenthIndex+=1 #puisque on vient d'ouvrir la parenthIndex-ième parenthèse, la prochaine parenthèse sera parenthIndex+1  (variable+=n  est une abréviation de variable = variable + 1)
         
-        elif char==")":
-            CloseIndexofParenths[openedParenthsArray[-1]]=index
-            openedParenthsArray.pop()
+        elif char==")":#si le caractère est une fermeture de parenthèse
+            closedParenthIndex=openedParenthsIndexes[-1] #on sait qu'on est entrain de fermer la dernière parenthèse ouverte, pour obtenir l'index de la dernière parenthèse ouverte on prend la liste 'openedParenthsIndexes' qui stocke les indexes des parenthèses ouvertes et on prends le dernier élément en utilisant '[-1]'
+            CloseIndexofParenths[closedParenthIndex]=charIndex #on connait l'index à laquelle se ferme la 'closedParenthIndex'-ième parenthèse. Du coup on définit dans la liste 'OpenIndexofParenths' la 'closedParenthIndex'-ième comme étant l'index du caractère (charIndex)
+            openedParenthsIndexes.pop()#puisque on a fermé la parenthèse on peut supprimer son index de la liste des parenthèses ouvertes (openedParenthsIndexes) en utilisant .pop() qui sert à supprimer la dernière valeur d'une liste
+
+    #une fois qu'on est passé à travers tout le texte avec notre "charIndex" on a normalement tous les indexes d'ouverture et de fermeture
     return OpenIndexofParenths,CloseIndexofParenths
     
 
-def SimplifyEasyParenth(text):#fonction qui simplifie les parenthèses ouvertes deux fois par exemple pour"3*((2+3))" elle retourne 3*(2+3)
-    if(type(text)!=str):
-        print("impossible d'interpréter la fonction! #112")
+def SimplifyEasyParenth(text):
+    """fonction qui simplifie les parenthèses ouvertes deux fois au lieu d'une par exemple pour "3*((2+3))" elle retourne "3*(2+3)", elle simplifie également "(x)" en "x" """
+    if(type(text)!=str):#si le texte n'est pas une chaine de caractères (str) on ne peut pas interpréter ce que la fonction est
+        print("impossible d'interpréter la fonction! #174")
         return ""
-    if(text.count("(")==0):
-        return text
+    if(text.count("(")==0):#si le texte n'a pas d'ouverture de parenthèses alors on ne peut sûrement pas les simplifier
+        return text #on retourne donc le texte tel quel
     
     
-    if(text[0]=="(" and text[-1]==")"):
-        if(verifParenthCoherence(text[1:-1])):
-            return SimplifyEasyParenth(text[1:-1])
+    if(text[0]=="(" and text[-1]==")"): #si le texte est de la forme texte="('texteinterne')" avec 'texteintene' pouvant être n'importe quelle chaine de caractères
+        if(verifParenthCoherence(text[1:-1])): #on regarde si les parenthèses restent cohérentes en prenant uniquement le 'texteinterne' Cela est fait en utilisant [1:-1] qui retourne le texte depuis son deuxième caractère (dont l'index est 1) jusqu'à sa ('n' moins 1)-ième avec n la longueur du texte
+            #par exemple si notre texte est "(bonjour)" alors on peut le simplifier en "bonjour" mais si c'est "(x+y)(x-y)" on ne peut pas le simplifier en "x+y)(x-y", la fonction 'verifParenthCoherence' est chargée de nous dire que "x+y)(x-y" n'est pas cohérent
+            return SimplifyEasyParenth(text[1:-1]) #si le texte reste cohérent alors on retourne la simplification de 'texteinterne'
+
+    OpenIndexofParenths,CloseIndexofParenths=GetOpenAndCloseParenthIndexs(text)#on obtient les indexes d'ouverture et de fermeture des parenthèses dans le texte, par exemple si le texte est "(()())" on aura OpenIndexofParenths=[0,1,3] et CloseIndexofParenths=[5,2,4] ainsi pour savoir où s'ouvre la première parenthèse on utilise OpenIndexofParenths[0] (=0) et pour savoir où elle se ferme on utilise CloseIndexofParenths[0] (=5). On saura que la première parenthèse s'ouvre en 0 et se ferme en 5
+
+    OpenStacks=getValuesStacks(OpenIndexofParenths) #on obtient pour chaque parenthèse les indexes des parenthèses ouvertes en même temps, par exemple pour "xxx((xxx()))" on aura [(0,1),(0,1),(2)] cela nous indique que la première parenthèse à été ouverte avec la deuxième et que la troisième à été ouverte toute seule.
+    CloseStacks=getValuesStacks(CloseIndexofParenths)#on obtient pour chaque parenthèse les indexes des parenthèses fermées en même temps, par exemple pour "xxx((xxx())xxx)" on aura [(0),(2,1),(2,1)] cela nous indique que la première parenthèse ouverte à été fermée toute seule et que la deuxième ouverte à été fermée avec la troisième ouverte.
+
+    parenthsToDelete=set()#on définit un set qui va stocker les indexes des parenthèses inutiles, un set est comme une liste sauf qu'il n'a pas d'ordre, on ne peut donc pas utiliser variable[n] pour obtenir la n-plus-unième valeur du set.
+
+    numbOfParenth=len(OpenIndexofParenths)
+
+
+    for index in range(numbOfParenth):#on va parcourir les parenthèses avec un index, si il y a 7 parenthèses dans le texte, la valeur de index sera d'abord index=0, puis index=1, puis 2, puis 3, 4, 5,6
+        if(index not in parenthsToDelete):#si on n'a pas encore décidé de supprimer cette parenthèse
+            newParenthsToDelete=OpenStacks[index].intersection(CloseStacks[index]) #toutes le parenthèses qui s'ouvrent et qui se ferment en même temps que la notre sont à supprimer, à l'exception de notre propre parenthèse (index)
+            newParenthsToDelete.discard(index) #on retire donc notre parenthèse (index)
+            parenthsToDelete=parenthsToDelete.union(newParenthsToDelete) #on définit les parenthèses à supprimer comme étant celles qu'il fallais déjà supprimer auxquelles on ajoute les nouvelles au moyen d'une union d'ensembles.
 
     
-    OpenIndexofParenths,CloseIndexofParenths=GetOpenAndCloseParenthIndexs(text)
+    indexsToRemove=[]#on va enregistrer chaque index des caractères du texte original à supprimer, par exemple si notre texte est "(123()678)" et que l'on veut enlever toutes le parenthèses, il faudra mettre dans la liste [0,4,5,9]
+    
+    for parenthIndex in parenthsToDelete:#pour chaque index de parenthèse à supprimer
+        indexsToRemove.append(OpenIndexofParenths[parenthIndex]) #on rajoute à notre liste l'index où la parenthèse s'ouvre 
+        indexsToRemove.append(CloseIndexofParenths[parenthIndex])#on rajoute à notre liste l'index où la parenthèse se ferme
+    editedText=""#on définit 'édited text' comme étant une chain de caractères vide
+    for charIndex in range(len(text)): # pour chaque index de caractère dans le texte
+        if charIndex not in indexsToRemove: #si l'index n'est pas parmi ceux à supprimer
+            editedText+=text[charIndex] #on rajoute le caractère à notre nouveau texte
+    #ainsi notre texte est composé uniquement des caractères qui n'étaient pas à supprimer
 
-    OpenStacks=getValuesStacks(OpenIndexofParenths)
-    CloseStacks=getValuesStacks(CloseIndexofParenths)
+    return editedText #on retourne le texte édité
 
-    parenthsToDelete=set()
-    for index in range(len(OpenIndexofParenths)):
-        if(index not in parenthsToDelete):
-            for parenthIndex in OpenStacks[index].intersection(CloseStacks[index]):
-                if(parenthIndex!=index):
-                    parenthsToDelete.add(parenthIndex)
-
-    indexsToRemove=[]
-    for parenthIndex in parenthsToDelete:
-        indexsToRemove.append(OpenIndexofParenths[parenthIndex])
-        indexsToRemove.append(CloseIndexofParenths[parenthIndex])
-    editedText=""
-    for index in range(len(text)):
-        if index not in indexsToRemove:
-            editedText+=text[index]
-    return editedText
-
-def ignoreParenths(text):#fonction qui ignore le contenu dans les parenthèses par exemple pour "2*(lolmdr des trucs bzr)+12x"renvoie "2*+12x"
+def ignoreParenths(text):#fonction qui ignore le contenu dans les parenthèses par exemple pour "2*(xxxxxxxxxxx)+12x"renvoie "2*+12x"
     editedText=""
     parenthIndex=0
     for char in text:
@@ -231,7 +337,7 @@ def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a 
             try:
                 return Function("const",float(text))
             except:
-                print("impossible d'interpréter la fonction!#190")
+                print("impossible d'interpréter la fonction!#278")
                 return ""
 
 
@@ -310,4 +416,3 @@ def getRandomFunc(maxDepth=10,depth=0,constFunc=lambda:random()*200-100):
         FuncVars.append(getRandomFunc(maxDepth,depth+1,constFunc))
     return Function(FuncType,FuncVars)
 
-    

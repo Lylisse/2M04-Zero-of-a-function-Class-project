@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from InputInterpretation import textToPythonInterpretable
 
 def plot_function(f, x_values_list, zeros, *args, **kwargs):
     x_values = np.array(x_values_list)
@@ -27,8 +28,8 @@ def make_function_from_string(str_func, variable_name='x'):
     f = make_function_from_string('y ** 2', 'y')
     print(f(3))
     -> 9"""
-
-    return eval(f'lambda {variable_name}: {str_func}')
+    print(textToPythonInterpretable(str_func))
+    return eval(f'lambda {variable_name}: {textToPythonInterpretable(str_func)}')
 
 def derivee(f, h=10 ** -6):
     def f_prime(x):

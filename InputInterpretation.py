@@ -1,5 +1,6 @@
 from copy import deepcopy
 from random import *
+
 FuncTypes=["+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan"]
 BasicFunctionsNames=["sin","cos","tan","arcsin","arccos","arctan","exp","ln"]
 FuncStr="sincostanarccosarctanexpln"
@@ -393,7 +394,9 @@ def VerifyVarsCoherence(aFunc):
 
 def textToPythonInterpretable(text):
     text=standardizeFunc(text)
-    text.replace("^","**")
+    text=text.replace("^","**")
+
+
     return text
 
 

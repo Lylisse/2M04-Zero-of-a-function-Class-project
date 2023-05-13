@@ -1,5 +1,5 @@
-from bracketing import i1z_bracketing
-from zeros_avec_taylor import i1z_sturm_taylor
+from bracketing import ti1z_bracketing
+from zeros_avec_taylor import ti1z_sturm_taylor
 
 
 def t0i_bracketing_dichotomie(f: callable, a: float, b: float, epsilon=10**-10):
@@ -29,13 +29,13 @@ def t0i_bracketing_regula_falsi(f: callable, a: float, b: float, epsilon=10**-10
 
 
 def t0f_bracketing_dichotomie(f, a, b, epsilon=10 ** -10, nb_de_valeurs_a_calculer=10 ** 4):
-    zeros, intervalles_avec_1_zero = i1z_bracketing(f, a, b, nb_de_valeurs_a_calculer=nb_de_valeurs_a_calculer)
+    zeros, intervalles_avec_1_zero = ti1z_bracketing(f, a, b, nb_de_valeurs_a_calculer=nb_de_valeurs_a_calculer)
     for intervalle in intervalles_avec_1_zero:
         zeros.append(t0i_bracketing_dichotomie(f, intervalle[0], intervalle[1], epsilon=epsilon))
     return zeros
 
 def t0f_bracketing_regula_falsi(f, a, b, epsilon=10 ** -10, nb_de_valeurs_a_calculer=10 ** 4):
-    zeros, intervalles_avec_1_zero = i1z_bracketing(f, a, b, nb_de_valeurs_a_calculer=nb_de_valeurs_a_calculer)
+    zeros, intervalles_avec_1_zero = ti1z_bracketing(f, a, b, nb_de_valeurs_a_calculer=nb_de_valeurs_a_calculer)
     for intervalle in intervalles_avec_1_zero:
         zeros.append(t0i_bracketing_regula_falsi(f, intervalle[0], intervalle[1], epsilon=epsilon))
     return zeros
@@ -43,7 +43,7 @@ def t0f_bracketing_regula_falsi(f, a, b, epsilon=10 ** -10, nb_de_valeurs_a_calc
 # BONUS :
 def t0f_sturm_taylor_dichotomie(f, a, b, epsilon=10 ** -10):
     zeros = []
-    intervalles_avec_1_zero, intervalles_explores = i1z_sturm_taylor(f, a, b)
+    intervalles_avec_1_zero, intervalles_explores = ti1z_sturm_taylor(f, a, b)
     for intervalle in intervalles_avec_1_zero:
         zero = float(t0i_bracketing_dichotomie(f, intervalle[0], intervalle[1], epsilon=epsilon))
         if zero not in zeros:

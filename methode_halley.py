@@ -38,7 +38,7 @@ if __name__ == '__main__':
         return sin(x ** 2)
 
 
-    exemple1 = t0f_haley(fonction, -3, 3)
+    exemple1 = t0f_halley(fonction, -3, 3)
     print(f'{exemple1 = }')
     # -> exemple1 = [-2.5066282746310007, -1.772453850905516, 1.772453850905516, 2.5066282746310007]
 

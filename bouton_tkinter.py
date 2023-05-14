@@ -9,7 +9,7 @@ from tkinter import ttk
 
 from dichotomies import t0f_bracketing_dichotomie, t0f_bracketing_regula_falsi, t0f_sturm_taylor_dichotomie
 from bracketing import t0f_bracketing
-from haley import t0f_haley
+from methode_halley import t0f_halley
 from newton import t0f_newton
 
 from fonctions_utiles import make_function_from_string
@@ -17,7 +17,7 @@ from fonctions_utiles import make_function_from_string
 from fonctions_utiles import plot_function
 
 
-toutes_les_methodes = ['t0f_haley', 't0f_newton', 't0f_bracketing', 't0f_bracketing_dichotomie', 't0f_bracketing_regula_falsi', 't0f_sturm_taylor_dichotomie']
+toutes_les_methodes = ['t0f_halley', 't0f_newton', 't0f_bracketing', 't0f_bracketing_dichotomie', 't0f_bracketing_regula_falsi', 't0f_sturm_taylor_dichotomie']
 
 
 def calculate_zeros(method, function, interval):

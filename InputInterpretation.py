@@ -122,8 +122,11 @@ def getCharTypes(text):
             charTypesArray.append(")")#si le caractère est ")" son type est ")" (trivial)
         elif(char=="("):
             charTypesArray.append("(")#si le caractère est "(" son type est "(" (trivial)
-        elif(char=="x"):
-            charTypesArray.append("var")#si le caractère est "(" son type est "var" car c'est une variable
+        elif(char=="x"): #si le caractère est "x" son type est "var" car c'est une variable sauf si c'est le x de "exp" de ce cas il est de type "func"
+            if(index!=0 and text[index-1]=="e"):
+                charTypesArray.append("func")
+            else:
+                charTypesArray.append("var")
         elif(char.isnumeric() or char=="."):
             charTypesArray.append("numb")#si le caractère est numérique ou bien si c'est un point c'est un nombre, ainsi tous les caractères de "42.69" sont de type "numb"
         elif(char in FuncStr):#si le caractère fait partie des caractères de fonction alors il est de type "func"
@@ -161,52 +164,53 @@ def getLenOfMult(text, charTypes):#fonction qui donne la longueur d'une multipli
     return charIndex #lorsque la multiplication abrégée se termine on retourne l'index du caractère qui nous donnera la longueur de la multiplication, par exemple pour "0x(34+6)8*0" la multiplication abrégée se termine en 9 qui nous donne la longueur en caractères de la multiplication. 
 
 
-def addUsefullParenths(initialText,triggerChar): #fonction qui va rajouter des parenthèses lorsque elle sont utiles, par exemple pour 2^2x on veut 2^(2*x) et non pas (2^2)*x
+def addUsefullParenths(initialText,triggerChar): 
+    """fonction qui va rajouter des parenthèses lorsque elles sont utiles, par exemple pour 2^2x on veut 2^(2x) et non pas (2^2)x, pareil pour "2/2x", pour cela on a besoin d'un caractère déclencheur (trigger char) à partir du quel on va rajouter des parenthèses (ce sera normalement soit "^" soit "/")
+    À noter que 2^2sin(x) donnera 2^(2sin(x)) et que 2^2(x+1) donnera 2^(2(x+1))"""
     
     chartypes=getCharTypes(initialText) #on utilise getCharTypes pour obtenir les types de caractères de notre texte, par exemple pour "2^2x" on aura ["numb","operator","numb","var"] (var est l'abréviation de variable)
     newText="" #on définit le nouveau texte comme étant une chaine de caractères vide
     lastTermEndIndex=0 #lastTermEndIndex stocke l'index où s'est terminé le dernier terme, par exemple pour "0*2^4x+7^x", si triggerchar est '^', lastTermEndIndex sera d'abord 0 puis 5 puis 9 les termes respectifs seront "", "4x", "x". 
-    termStartIndex=initialText.find(triggerChar)#termStartIndex sera à chaque fois l'index de triggerchar, le caractère "déclencheur", par exemple dans "0^2+4^6" si triggerChar est '^' il sera 1 puis 5 puis -1 pour signifier qu'il ne reste plus de '^' dans le texte
-    while termStartIndex !=-1:
-        newText+=initialText[lastTermEndIndex:termStartIndex+1]
-        multLen=getLenOfMult(initialText[termStartIndex+1:],chartypes[termStartIndex+1:])
-        if(multLen!=0):
-            newText+="("+initialText[termStartIndex+1:termStartIndex+multLen+1]+")"
-        lastTermEndIndex=termStartIndex+multLen+1
-        if(initialText[termStartIndex+1+multLen:].find(triggerChar)!=-1):
-            termStartIndex=initialText[termStartIndex+1+multLen:].find(triggerChar)+termStartIndex+1+multLen
+    termStartIndex=initialText.find(triggerChar)#termStartIndex sera à chaque fois l'index de triggerchar, le caractère "déclencheur", par exemple dans "0^2+4^6" si triggerChar est '^' il sera 1 puis 5 puis -1 pour signifier qu'il ne reste plus de '^' dans le texte, à noter que l'index pointe vers le caractère déclencheur, donc le terme commencera sur termStartIndex+1
+    while termStartIndex !=-1:#tant que termStartIndex n'est pas -1 cela veut dire que il y a encore des priorités d'opérations à faire valoir
+        newText+=initialText[lastTermEndIndex:termStartIndex+1]#on rajoute dans le nouveau texte tout ce qui est entre la fin du dernier terme et le début du nouveau
+        multLen=getLenOfMult(initialText[termStartIndex+1:],chartypes[termStartIndex+1:])#on enregistre dans la variable "multLen" la longueur du terme, par exemple si on a "2^xsin(x)" cela nous donnera 7 car "xsin(x)" est de longueur 7
+        if(multLen!=0):#si la longueur du terme n'est pas nulle (ce qui devrait toujours être le cas car sinon cela voudrait dire que notre texte est par exemple "2^+" ou "(2/)"  (avec triggerchar "^" et "/" respectivement)
+            newText+="("+initialText[termStartIndex+1:termStartIndex+multLen+1]+")"#on rajoute le terme en l'entourant de parenthèses
+        lastTermEndIndex=termStartIndex+1+multLen#on enregistre lastTermEndIndex comme étant l'index de début de terme (on rappelle que c'est termStartIndex+1 car termStartIndex pointe sur le triggerChar) plus la longueur du terme. Cela nous donne l'index du charactère suivant la fin du terme, par exemple dans "2^2x+1" le début du terme est le "^" qui est en 1, la longueur du terme "2x" est de 2 ainsi on a 1+1+2= 4 qui est l'index du "+" dans "2^2x+1"
+        print(lastTermEndIndex)
+        if(initialText[lastTermEndIndex:].find(triggerChar)!=-1):#si on trouve le charactère déclencheur (triggerChar) dans ce qui reste du texte. ( text.find(char) renvoie -1 si char n'a pas été trouvé dans le texte) 
+            termStartIndex=initialText[lastTermEndIndex:].find(triggerChar)+lastTermEndIndex#alors on définit termStartIndex comme étant l'index de triggerChar, par exemple si notre texte initial est "1^2x+3^4x" et que triggerchar="^" on cherche dans "+3^4x" on trouve "^" qui est à l'index 2 auquel on rajoute 3 qui est l'index de la fin du dernier terme ("1^2x"<--ici) pour obtenir 5 qui est bien l'index du deuxième "^" dans "1^2x+3^4x"
         else:
-            termStartIndex=-1
-    newText+=initialText[lastTermEndIndex:]
-
-
-    return newText
+            termStartIndex=-1#si on ne trouve pas le caractère déclencheur, on enregistre -1 dans la variable termStartIndex ce qui causera la fin de la boucle while
+    newText+=initialText[lastTermEndIndex:]#on rajoute au texte ce qu'il reste depuis la fin du dernier terme, par exemple dans "0^2x+5" ce sera le "+5"
+    
+    return newText #on retourne le texte que l'on a généré qui aura normalement des parenthèses entourant les termes de multiplicatifs abrégés, par exemple avec "^" comme triggerChar et "2^2x^2x" comme initialText, newText sera "2^(2x)^(2x)" 
 
 
 def standardizeFunc(text):#fonction qui par exemple renvoie 2*x pour 2x
-    text=text.replace("exp","eep")
     text=text.replace(" ","")#on enlève les espaces
     text=text.replace("**","^")#on remplace "**" par "^"; le symbole utilisé pour les puissances
     
-    text=addUsefullParenths(text,"^")
-    text=addUsefullParenths(text,"/")
-    charTypesArray=getCharTypes(text)
-    newText=""
-    for charIndex in range(len(charTypesArray)-1):
-        char = text[charIndex]
-        newText+=char
-        charType=charTypesArray[charIndex]
-        nextCharType=charTypesArray[charIndex+1]
-        if(charType == ")" and nextCharType not in ["operator",")"]):
+    text=addUsefullParenths(text,"^")#on rajoute des parenthèses après les simboles de puissances, pour avoir par exemple 2^(2x) au lieu de 2^2x qui risquerait d'être interprété commme (2^2)*x
+    text=addUsefullParenths(text,"/")#on rajoute des parenthèses après les simboles de division, pour avoir par exemple 2/(2x) au lieu de 2/2x qui risquerait d'être interprété commme (2/2)*x
+
+    charTypesArray=getCharTypes(text)#on utilise getCharTypes pour obtenir les types de caractères de notre texte, par exemple pour "2^2x" on aura ["numb","operator","numb","var"] (var est l'abréviation de variable)
+    newText=""#on initialise une variable contenant le nouveau texte, pour l'instant vide
+    for charIndex in range(len(charTypesArray)-1):#pour chaque index de caractère excepté le dernier
+        char = text[charIndex]#on définit la variable char comme étant le caractère à l'index donné
+        charType=charTypesArray[charIndex]#on définit la variable charType comme étant le type de caractère à l'index donné (le type de notre caractère (char) en gros)
+        newText+=char#on rajoute la caractère au nouveau texte
+        nextCharType=charTypesArray[charIndex+1]#on définit la variable nextCharType comme étant le type de caractère qui est après le notre pour cela on utilise (charIndex+1)
+        if(charType == ")" and nextCharType in ["(","var","numb","func"]):#si notre caractère est une fin de parenthèse et que le suivant est un début de parenthèse, une variable, un nombre ou une fonction, c'est qu'on est dans le cas "....)sin..." "....)x..." "....)n..." "....)(..." et on rajoute donc un symbole de multiplication "*" pour obtenir "....)*sin..." "....)*x..." "....)*n..." "....)*(..."
             newText+="*"
-        if(charType == "var" and nextCharType not in ["operator",")"]):
+        if(charType == "var" and nextCharType in ["(","var","numb","func"]):#si notre caractère est une variable et que le suivant est un début de parenthèse, une variable, un nombre ou une fonction, c'est qu'on est dans le cas "....xsin..." "....xx..." "....xn..." "....x(..." et on rajoute donc un symbole de multiplication "*" pour obtenir "....x*sin..." "....x*x..." "....x*n..." "....x*(..."
             newText+="*"
-        if(charType == "numb" and nextCharType not in ["operator",")","numb"]):
+        if(charType == "numb" and nextCharType in ["(","var","func"]):#si notre caractère est un nombre et que le suivant est un début de parenthèse, une variable ou une fonction, c'est qu'on est dans le cas "....nsin..." "....nx..." "....n(..." et on rajoute donc un symbole de multiplication "*" pour obtenir "....n*sin..." "....n*x..." "....n*(..."
             newText+="*"
-    newText+= text[-1]
-    newText= newText.replace("eep","exp")
+    newText+= text[-1]#on rajoute à notre nouveau texte le dernier son dernier caractère
         
-    return SimplifyEasyParenth(newText)
+    return SimplifyEasyParenth(newText)#on renvoie la fonction en simplifiant les parenthèses inutiles par exemple si l'utilisateur à mis "((x+1))*2" cela nous donnera (x+1)*2
 
 
 def simplifyUselessSubFuncs(aFunc):

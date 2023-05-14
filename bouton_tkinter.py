@@ -86,6 +86,8 @@ ttk.Label(mainframe, text="fonction").grid(column=2, row=1, sticky=W)
 
 debut_intervalle = StringVar()
 # on définit "debut_intervalle" comme une variable sous forme de String pour le transformer en float
+debut_intervalle.set("-100")
+#on définit le début de l'intervalle comme étant -100 par défault
 debut_intervalle_entry = ttk.Entry(mainframe, textvariable=debut_intervalle)
 # on définit l'entry
 debut_intervalle_entry.grid(column=1, row=2, sticky=(W))
@@ -93,6 +95,9 @@ debut_intervalle_entry.grid(column=1, row=2, sticky=(W))
 ttk.Label(mainframe, text="à").grid(column=2, row=2)
 # on définit l'emplacement de 'racines' qui permettra d'indiquer que le rectangle inférieur correspond aux zéros de la fonction
 fin_intervalle = StringVar()
+
+fin_intervalle.set("100")
+#on définit la fin de l'intervalle comme étant 100 par défault
 
 fin_intervalle_entry = ttk.Entry(mainframe, textvariable=fin_intervalle)
 
@@ -102,7 +107,9 @@ ttk.Label(mainframe, text="Intervalle").grid(column=4, row=2)
 
 methode_1_select = StringVar()
 
-ttk.Checkbutton(mainframe, text="dichotomie", variable=methode_1_select, onvalue="method1").grid(column=1, row=3)
+dichotomie=ttk.Checkbutton(mainframe, text="dichotomie", variable=methode_1_select, onvalue="method1")
+dichotomie.invoke() #on définit dichotomie comme étant l'option par défault
+dichotomie.grid(column=1, row=3)
 
 ttk.Checkbutton(mainframe, text="méthode 2", variable=methode_1_select, onvalue="method2").grid(column=2, row=3)
 

@@ -11,13 +11,15 @@ from dichotomies import t0f_bracketing_dichotomie, t0f_bracketing_regula_falsi, 
 from bracketing import t0f_bracketing
 from methode_halley import t0f_halley
 from newton import t0f_newton
+from AlgebraicAnalysis import t0f_Algebriquement
+from InputInterpretation import textToFunc
 
 from fonctions_utiles import make_function_from_string
 
 from fonctions_utiles import plot_function
 
 
-toutes_les_methodes = ['t0f_halley', 't0f_newton', 't0f_bracketing', 't0f_bracketing_dichotomie', 't0f_bracketing_regula_falsi', 't0f_sturm_taylor_dichotomie']
+toutes_les_methodes = ['t0f_halley', 't0f_newton', 't0f_bracketing', 't0f_bracketing_dichotomie', 't0f_bracketing_regula_falsi', 't0f_sturm_taylor_dichotomie','t0f_Algebriquement']
 
 
 def calculate_zeros(method, function, interval):
@@ -37,7 +39,12 @@ def calculate_zeros(method, function, interval):
         errorLabel.config(text=intervalerror)
 
     try:
-        fct_zeros = eval(f'{method}(make_function_from_string(function, fctvariable), interval[0], interval[1])')
+        if(method=="t0f_sturm_taylor_dichotomie"):
+            fct_zeros = t0f_sturm_taylor_dichotomie(make_function_from_string(function, fctvariable,"mpmath"), interval[0], interval[1])
+        elif(method=="t0f_Algebriquement"):
+            fct_zeros = t0f_Algebriquement(textToFunc(function))
+        else:
+            fct_zeros = eval(f'{method}(make_function_from_string(function, fctvariable), interval[0], interval[1])')
         display_graph(make_function_from_string(function, fctvariable), np.linspace(interval[0], interval[1], 10_000),
                       fct_zeros)
 

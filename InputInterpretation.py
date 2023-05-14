@@ -1,8 +1,11 @@
 from copy import deepcopy
 from random import *
+import mpmath as mp
+import numpy as np
 
-FuncTypes=["+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan"]
+FuncTypes=["-","+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan"]
 BasicFunctionsNames=["sin","cos","tan","arcsin","arccos","arctan","exp","ln"]
+BasicFunctionsNamesInverted=["arcsin","arccos","arctan","sin","cos","tan","ln","exp"] #pour chaque nom de fonction cette liste contient son opposé, selon son index, par exemple BasicFunctionsNames[2]=tan et BasicFunctionsNamesInverted[2]=arctan; son inverse
 mpMathFunctionNames=["mp.sin","mp.cos","mp.tan","mp.asin","mp.acos","mp.atan","mp.exp","mp.ln"]
 numpyFunctionNames=["np.sin","np.cos","np.tan","np.arcsin","np.arccos","np.arctan","np.exp","np.log"]
 FuncStr="sincostanarccosarctanexpln"
@@ -12,7 +15,7 @@ class Function: #on définit les propriétés de l'object fonction
         self.type=atype # on définit le type de fonction parmi ces types"+","*","/","^","sin","cos","tan","const","x","ln","exp","arcsin","arccos","arctan"
         self.vars=funcVars # une chaine contenant les variables de la fonction, à noter que les fonction de type x n'en ont pas
         #(par exemple pour 5x + 13 on a vars=[5x,13] et type="+")
-        if(atype in ["+","/","^","-"] and len(funcVars)<2):
+        if(atype in ["+","/","^","-","*"] and len(funcVars)<2):
             print("invalid number of args!",atype)# il faut au moins deux variable pour définire une addition, division, etc...
     def __str__(self):#on définit ce qu'il va arriver lorsque on utilise la fonction str(<notre object fonction>) dans le code
         return SimplifyEasyParenth(self.toString())#on retourne la fonction en la transformant en une chaine de caractère (avec la fonction qu'on définit juste après) et on utilise la fonction qui simplifie les parenthèses pour que ça soit propre
@@ -108,6 +111,69 @@ class Function: #on définit les propriétés de l'object fonction
             print("impossible to convert func to str!")
             return ""
         
+    def getValue(self,n):#fonction qui retournera la valeur de la fonction en n, par exemple si notre fonction f est x+1 alors f.getValue(2)=3
+        if(self.type=="x"):
+            return n
+        elif(self.type=="const"):
+            return self.vars
+        elif(self.type =="+"):
+            returnValue=0
+            for aVar in self.vars:
+                if(aVar.getValue(n)==None):
+                    return None
+                returnValue+=aVar.getValue(n)
+            return returnValue
+        elif(self.type =="-"):
+            if(self.vars[0].getValue(n)==None):
+                return None
+            returnValue=self.vars[0].getValue(n)
+            for aVar in self.vars[1:]:
+                if(aVar.getValue(n)==None):
+                    return None
+                returnValue-=aVar.getValue(n)
+            return returnValue
+        elif(self.type =="*"):
+            returnValue=1
+            for aVar in self.vars:
+                if(aVar.getValue(n)==None):
+                    return None
+                returnValue*=aVar.getValue(n)
+            return returnValue
+        elif(self.type =="/"):
+            if(self.vars[0].getValue(n)==None):
+                return None
+            returnValue=self.vars[0].getValue(n)
+            for aVar in self.vars[1:]:
+                if(aVar==0):
+                    return None
+                if(aVar.getValue(n) in [None,0]):
+                    return None
+                returnValue/=aVar.getValue(n)
+            return returnValue
+        elif(self.type =="^"):
+            if(self.vars[0].getValue(n)==None):
+                return None
+            returnValue=self.vars[0].getValue(n)
+            for aVar in self.vars[1:]:
+                if(aVar.getValue(n)==None):
+                    return None
+                if(returnValue==0 and aVar.getValue(n)<0):
+                    return None
+                returnValue**=aVar.getValue(n)
+            return returnValue
+        elif(self.type in BasicFunctionsNames):
+            index=BasicFunctionsNames.index(self.type)
+            if(self.vars.getValue(n)==None):
+                return None
+            try:
+                return eval(numpyFunctionNames[index]+f"({self.vars.getValue(n)})")
+            except:
+                print("exception! l.169")
+                return None
+
+
+        
+        
 def cf(number): #on définit la fonction cf pour constant Func (fonction constante) qui nous servira à initialiser plus facilement une fonction constante
     return Function("const",number)
 
@@ -178,7 +244,6 @@ def addUsefullParenths(initialText,triggerChar):
         if(multLen!=0):#si la longueur du terme n'est pas nulle (ce qui devrait toujours être le cas car sinon cela voudrait dire que notre texte est par exemple "2^+" ou "(2/)"  (avec triggerchar "^" et "/" respectivement)
             newText+="("+initialText[termStartIndex+1:termStartIndex+multLen+1]+")"#on rajoute le terme en l'entourant de parenthèses
         lastTermEndIndex=termStartIndex+1+multLen#on enregistre lastTermEndIndex comme étant l'index de début de terme (on rappelle que c'est termStartIndex+1 car termStartIndex pointe sur le triggerChar) plus la longueur du terme. Cela nous donne l'index du charactère suivant la fin du terme, par exemple dans "2^2x+1" le début du terme est le "^" qui est en 1, la longueur du terme "2x" est de 2 ainsi on a 1+1+2= 4 qui est l'index du "+" dans "2^2x+1"
-        print(lastTermEndIndex)
         if(initialText[lastTermEndIndex:].find(triggerChar)!=-1):#si on trouve le charactère déclencheur (triggerChar) dans ce qui reste du texte. ( text.find(char) renvoie -1 si char n'a pas été trouvé dans le texte) 
             termStartIndex=initialText[lastTermEndIndex:].find(triggerChar)+lastTermEndIndex#alors on définit termStartIndex comme étant l'index de triggerChar, par exemple si notre texte initial est "1^2x+3^4x" et que triggerchar="^" on cherche dans "+3^4x" on trouve "^" qui est à l'index 2 auquel on rajoute 3 qui est l'index de la fin du dernier terme ("1^2x"<--ici) pour obtenir 5 qui est bien l'index du deuxième "^" dans "1^2x+3^4x"
         else:
@@ -189,6 +254,8 @@ def addUsefullParenths(initialText,triggerChar):
 
 
 def standardizeFunc(text):#fonction qui par exemple renvoie 2*x pour 2x
+    if(text[0]=="-"):
+        text="0"+text #on rajoute un 0 devant le - pour que cela puisse être interprété comme une soustraction
     text=text.replace(" ","")#on enlève les espaces
     text=text.replace("**","^")#on remplace "**" par "^"; le symbole utilisé pour les puissances
     
@@ -356,7 +423,7 @@ def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a 
 
     if(text=="x"):
         return Function("x",None)
-    for basicOperator in ["+","*","/","^"]:
+    for basicOperator in ["+","-","*","/","^"]:#il faut suivre la priorité des oprérations
         if(referenceText.find(basicOperator)!=-1):
             parenthIndex=0
             textbit=""
@@ -381,7 +448,7 @@ def textToFunc(text): # 2^3x = (2^3)*x => la multiplication sans opérateur n'a 
             try:
                 return Function("const",float(text))
             except:
-                print("impossible d'interpréter la fonction!#278")
+                print(f"impossible d'interpréter la fonction!#278 \n{text}")
                 return ""
 
 
@@ -441,18 +508,20 @@ def textToPythonInterpretable(text,library=None):
     if(library=="mpmath"):
         for nameIndex in range(len(BasicFunctionsNames)):
             text=text.replace(BasicFunctionsNames[nameIndex],mpMathFunctionNames[nameIndex])
-    if(library=="numpy"):
+    elif(library=="numpy"):
         for nameIndex in range(len(BasicFunctionsNames)):
             text=text.replace(BasicFunctionsNames[nameIndex],numpyFunctionNames[nameIndex])
-
+    elif(library!=None):
+        print("nom de librarie inconnu!")
+    print(f"Fonction python après interprétation: {text}")
     return text
 
 
-def getRandomFunc(maxDepth=10,depth=0,constFunc=lambda:random()*200-100):
+def getRandomFunc(maxDepth=10,depth=0,constFunc=lambda:random()*200-100,types=FuncTypes):
     if(depth==maxDepth):
         FuncType="const"
     else:
-        FuncType=FuncTypes[randrange(0,len(FuncTypes))]
+        FuncType=types[randrange(0,len(types))]
     if(FuncType=="const"):
         FuncVars=constFunc()
         return Function(FuncType,FuncVars)
@@ -460,10 +529,30 @@ def getRandomFunc(maxDepth=10,depth=0,constFunc=lambda:random()*200-100):
         FuncVars=None
         return Function(FuncType,FuncVars)
     if(FuncType in BasicFunctionsNames):
-        FuncVars=getRandomFunc(maxDepth,depth+1,constFunc)
+        FuncVars=getRandomFunc(maxDepth,depth+1,constFunc,types=FuncTypes)
         return Function(FuncType,FuncVars)
     FuncVars=[]
     for _ in range(randrange(2,6)):
-        FuncVars.append(getRandomFunc(maxDepth,depth+1,constFunc))
+        FuncVars.append(getRandomFunc(maxDepth,depth+1,constFunc,types=FuncTypes))
     return Function(FuncType,FuncVars)
+
+def getOnexRandomFunc(maxDepth=10,maxLength=5,types=["-","+","*","/","^","sin","cos","tan","const","ln","exp","arcsin","arccos","arctan"]):
+    Func=Function("x",None)
+    for i in range(maxDepth):
+        randType = types[randrange(0,len(types))]
+        while randType in ["const","x"]:
+            randType = FuncTypes[randrange(0,len(FuncTypes))]
+        if(randType in BasicFunctionsNames):
+            Func=Function(randType,Func.deepcopy())
+        else:
+            randLength=randrange(2,maxLength)
+            randIndex=randrange(0,randLength)
+            vars=[]
+            for index in range(randLength):
+                if(index==randIndex):
+                    vars.append(Func.deepcopy())
+                else:
+                    vars.append(getRandomFunc(maxDepth=i+1,types=types))
+            Func=Function(randType,vars)
+    return Func
 

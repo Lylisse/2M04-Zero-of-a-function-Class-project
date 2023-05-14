@@ -1,5 +1,6 @@
 from InputInterpretation import *
-#les commentaires présents dans ce code paraiterons longs pour ceux qui conaissent bien le phyton, ces commentaires sont pour les "paumés en phyton". Donc si cela ne vous sert par ne les regardez pas. Je vais donner des comms pour toutes les lignes
+Rvalues=[-1000,-100,-10,-1,0,1,10,42,100,1000]#des nombres dans R
+#les commentaires présents dans ce code paraiterons longs pour ceux qui conaissent bien le python, ces commentaires sont pour les "paumés en python".
 def Derivate(aFunc): #On définit la fonction qui va dériver une fonction. La fct initiale va etre aFunc.
     if(aFunc.type=="const"): #On vérifie si la fonction est une fct constante
         return Function("const",0) #Si c'est le cas on retourne la fonction constante 0
@@ -50,7 +51,7 @@ def Derivate(aFunc): #On définit la fonction qui va dériver une fonction. La f
 
 def developFunc(aFunc):
     """
-    à utiliser avec précaution
+    à utiliser avec précaution, fonction très mal faite
     """
     aFunc=simplifyUselessSubFuncs(aFunc)
     if(aFunc.type in ["const","x"]+BasicFunctionsNames):
@@ -75,7 +76,7 @@ def developFunc(aFunc):
                 for (index,value) in enumerate(aCombination):
                     if(aFunc.vars[index].type!="+"):
                         if(value!=0):
-                            print("valeur de l'indexe voulu erronée!")
+                            print("valeur de l'index voulu erroné!")
                         multVars.append(aFunc.vars[index].deepcopy())
                     else:
                         multVars.append(aFunc.vars[index].vars[value].deepcopy())
@@ -86,13 +87,11 @@ def developFunc(aFunc):
             multVars=[]
             for aVar in aFunc.vars[-1].vars:
                 multVars.append(Function("^",aFunc.deepcopy().vars[:-1]+[aVar]))
-            return Function("*",multVars)
+            return developFunc(Function("*",multVars))
         else:
             if(len(aFunc.vars)>2):
-                aFunc.vars[-2]*=aFunc.vars[-1]
-                return developFunc(Function("^",aFunc.vars[:-1]))
-            else:
-                return aFunc
+                aFunc.vars=[aFunc.vars[0],Function("*",aFunc.vars[1:])]
+            return aFunc
     if(aFunc.type=="/"):
         multVars=[aFunc.vars[0]]
         for aVar in aFunc.vars[1:]:
@@ -114,7 +113,7 @@ def getAllCombinations(arrayOfArraysLengths):
     
 def simplifyFunc(aFunc):
     """
-    à utiliser avec précaution
+    à utiliser avec précaution, il manque la simplification de la division par 1 par exemple
     """
     if(aFunc.type=="const" or aFunc.type=="x"):
         return aFunc
@@ -139,6 +138,33 @@ def simplifyFunc(aFunc):
             return newVars[0]
         else:
             return Function("+",newVars)
+    elif(aFunc.type=="-"): # on soustrait les constantes et on laisse le reste pareil, par exemple 2-2-x -->0-x si le premier terme est variable on a x-3-5 -->x-8 
+        newVars=[]
+        constVar=0
+        if(aFunc.vars[0].type!="const"):
+            isFirstTermConst=False
+            newVars.append(aFunc.vars[0])
+        else:
+            isFirstTermConst=True
+            constVar+=aFunc.vars[0].vars
+            newVars.append(None)
+        
+        for aVar in aFunc.vars[1:]:
+            if(aVar.type!="const"):
+                newVars.append(aVar)
+            else:
+                constVar-=aVar.vars
+        if(isFirstTermConst):
+            newVars[0]=cf(constVar)
+        elif(constVar!=0):
+            newVars.append(cf(-constVar))
+
+        if(len(newVars)==0):
+            return cf(0)
+        elif(len(newVars)==1):
+            return newVars[0]
+        else:
+            return Function("-",newVars)
     elif(aFunc.type=="*"):# si il y a un 0 on retourne la fonction constante 0, on regroupe les coefficient constants et si on a au moins deux variables on applique la distributivité
         newVars=[]
         constVar=1
@@ -171,6 +197,7 @@ def simplifyFunc(aFunc):
     elif(aFunc.type=="^"):
         if(len(aFunc.vars)!=2):
             print("Fonction mal développée!")
+            exit()
         if(aFunc.vars[1].type=="const"):
             if(aFunc.vars[1].vars==0):
                 return cf(1)
@@ -248,7 +275,7 @@ def isMonomial(aFunc):
             return True
     return False
             
-def isConst(aFunc):
+def isConst( aFunc):
     if(aFunc.type=="const"):
         return True
     if(aFunc.type=="x"):
@@ -265,10 +292,145 @@ def isConst(aFunc):
 
 
 
+def t0f_Algebriquement(aFunc):
+    rawZeros=getInverseofFuncbyValue(aFunc,0)
+    zeros=[]
+    if(type(rawZeros)!=list):
+        rawZeros=[rawZeros]
+    for azero in rawZeros:
+        if(azero=="R"):
+            return Rvalues
+        if(azero!=None and aFunc.getValue(azero)!=None and abs(aFunc.getValue(azero))<=10**-10):
+            zeros.append(azero)
+    return zeros
+
+
+
+def getInverseofFuncbyValue(aFunc,value):
+    """fonction pour avoir la valeur inverse d'une fonction"""
+    if(type(aFunc.vars)==list):
+        for aVar in aFunc.vars:
+            if(isConst(aVar) and aVar.getValue(0)==None):
+                return None
+    if(aFunc.type=="x"):
+        return value
+    elif(isConst(aFunc)):
+        if(value==aFunc.getValue(0)):
+            return "R"
+        else:
+            return None
+    elif(aFunc.type in BasicFunctionsNames):
+        if(value==0 and aFunc.type=="exp"):
+            return None
+        index = BasicFunctionsNamesInverted.index(aFunc.type)
+        try:
+            inverse= getInverseofFuncbyValue(aFunc.vars,eval(numpyFunctionNames[index]+f"({value})"))
+            return inverse
+        except:
+            print("exception! l.329")
+            return None
+    elif(aFunc.type=="+"):
+        ConstCount=0
+        ConstsValue=0
+        for aVar in aFunc.vars:
+            if(isConst(aVar)):
+                ConstCount+=1
+                ConstsValue+=aVar.getValue(0)
+            else:
+                VarVar=aVar #la variable variable de l'addition est aVar puisqu'elle n'est pas constante
+        if(ConstCount==len(aFunc.vars)-1):
+            return getInverseofFuncbyValue(VarVar,value-ConstsValue)
+    elif(aFunc.type=="-"):
+        aFunc=aFunc.deepcopy()
+        aFunc.type="+"
+        for aVar in aFunc.vars[1:]:
+            aVar.vars=[cf(-1),aVar.deepcopy()]
+            aVar.type="*"
+        return getInverseofFuncbyValue(aFunc,value)
+    elif(aFunc.type=="*"):
+        ConstCount=0
+        ConstsValue=1
+        for aVar in aFunc.vars:
+            if(isConst(aVar)):
+                ConstCount+=1
+                ConstsValue*=aVar.getValue(0)
+            else:
+                VarVar=aVar #la variable variable de l'addition est aVar puisqu'elle n'est pas constante
+        if(ConstCount==len(aFunc.vars)-1):#si il y a un seul terme variable dans notre multiplication alors
+            if(ConstsValue==0):
+                if(value==0):
+                    return "R"
+                else:
+                    return None
+            return getInverseofFuncbyValue(VarVar,value/ConstsValue)
+        elif(value ==0):#si notre multiplication a plusieurs termes variables, on peut toujours trouver les 0 de chaque terme
+            FuncZeros=[]
+            for aVar in aFunc.vars:
+                FuncZeros.append(getInverseofFuncbyValue(aVar,0))
+            return FuncZeros
+    elif(aFunc.type=="/"):
+        ConstCount=0
+        ConstsValue=1
+        if(isConst(aFunc.vars[0])):
+            ConstCount+=1
+            ConstsValue=aFunc.vars[0].getValue(0)
+            isFirstTermConst=True
+        else:
+            isFirstTermConst=False
+            VarVar=aFunc.vars[0]
+        for aVar in aFunc.vars[1:]:
+            if(isConst(aVar)):
+                ConstCount+=1
+                ConstsValue*=1/aVar.getValue(0)
+            else:
+                VarVar=aVar #la variable variable de l'addition est aVar puisqu'elle n'est pas constante
+        if(ConstCount==len(aFunc.vars)-1):#si il y a un seul terme variable dans notre multiplication alors
+            if(isFirstTermConst==False):
+                return getInverseofFuncbyValue(VarVar,value/ConstsValue)#on est dans le cas de la multiplication
+            else:
+                if(value==0):
+                    if(ConstsValue==0):
+                        return "R"
+                    else:
+                        return None
+                return getInverseofFuncbyValue(VarVar,ConstsValue/value)#on est dans le cas inverse de la multiplication : n = a/x/b =a*(1/b)/x <=> x = a*(1/b)/n
+        elif(value == 0):#si notre division a plusieurs termes variables, on peut toujours trouver les 0 du numérateur
+            return getInverseofFuncbyValue(aFunc.vars[0],0)
+    elif(aFunc.type=="^"):
+        if(len(aFunc.vars)!=2):
+            aFunc=aFunc.deepcopy()
+            newFunc=Function("*",aFunc.vars[1:])
+            aFunc.vars=[aFunc.vars[0],newFunc]
+        if(not isConst(aFunc.vars[0])and isConst(aFunc.vars[1])):#on est dans le cas f(x)^a=n <=> f(x)=n^(1/a)
+            if(aFunc.vars[1].getValue(0)==0):
+                if(value!=1):
+                    return None
+                else:
+                    return "R"
+            if(value==0):
+                return getInverseofFuncbyValue(aFunc.vars[0],0)
+            return getInverseofFuncbyValue(aFunc.vars[0],value**(1/aFunc.vars[1].getValue(0)))
+        elif(not isConst(aFunc.vars[1])and isConst(aFunc.vars[0])):#on est dans le cas a^f(x)=n <=> f(x)=loga(n)=ln(n)/ln(a)
+            if(value==0 and aFunc.vars[0].getValue(0)==0):
+                return "R"
+            elif(value==0 or aFunc.vars[0].getValue(0)==0):
+                return None
+            return getInverseofFuncbyValue(aFunc.vars[1],np.log(value)/np.log(aFunc.vars[0].getValue(0)))
+        elif(value == 1):
+            return getInverseofFuncbyValue(aFunc.vars[1],0)
+        elif(value == 0):
+            return getInverseofFuncbyValue(aFunc.vars[0],0)
+        
+    return "undefined"
+
+
+
+
+
+
 
 
 
 if __name__ =="__main__":
     while True:
-        print(getAllCombinations([5,2,2]))
-        input()
+        print(t0f_Algebriquement(input()))

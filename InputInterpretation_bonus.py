@@ -505,6 +505,7 @@ def VerifyVarsCoherence(aFunc):
     return False
 
 def textToPythonInterpretable(text,library=None):
+    text=text.replace("**","^")
     text=standardizeFunc(text)
     text=text.replace("^","**")
     if(library=="mpmath"):

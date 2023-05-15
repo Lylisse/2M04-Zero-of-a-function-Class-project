@@ -1438,11 +1438,8 @@ if __name__ == '__main__':
 
     exemple = ti1z_sturm_taylor(fonction, -3, 3)
     print(f'{exemple = }')
-    # -> exemple = (((-3, -1.9878549647396115), (-1.9878549647396115, -0.6626183215798706), (-0.6626183215798706, 0.6626183215798706), (0.6626183215798706, 1.9878549647396115), (1.9878549647396115, 3)),
-    # [(-3, -1.9878549647396115), (-1.9878549647396115, 1.9878549647396115), (1.9878549647396115, 3)])
-    # chacun des intervalles dans la 1ère liste contient 1 zéro
-    # la deuxième liste donne les intervalles ayant été explorés par la fonction.
-    # pour une fonction telle que sin(1/x) par exemple, ce n'est pas trivial que ce soit l'ensemble de l'intervalle
+    # -> exemple = ((-3, -1.9878549647396115), (-1.9878549647396115, -0.6626183215798706), (-0.6626183215798706, 0.6626183215798706), (0.6626183215798706, 1.9878549647396115), (1.9878549647396115, 3))
+    # chacun des intervalles dans la liste contient 1 zéro
 
 
 

@@ -307,7 +307,7 @@ def t0f_Algebriquement_bonus(aFunc):
 
 
 def getInverseofFuncbyValue(aFunc,value,range=[-100,100]):
-    #print(aFunc,value)
+    #gestion et utilisation du range à améliorer
     """fonction pour avoir l'inverse d'une fonction selon une valeur"""
     if(type(aFunc.vars)==list):
         for aVar in aFunc.vars:
@@ -434,7 +434,7 @@ def getInverseofFuncbyValue(aFunc,value,range=[-100,100]):
                     return "R"
                 else:
                     return None
-            range=[aRange*ConstsValue for aRange in range]
+            #range=[aRange*ConstsValue for aRange in range]
             return getInverseofFuncbyValue(VarVar,value/ConstsValue,range)
         elif(value ==0):#si notre multiplication a plusieurs termes variables, on peut toujours trouver les 0 de chaque terme
             FuncZeros=[]

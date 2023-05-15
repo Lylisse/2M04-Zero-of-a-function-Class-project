@@ -11,7 +11,7 @@ from dichotomies import t0f_bracketing_dichotomie, t0f_bracketing_regula_falsi, 
 from bracketing import t0f_bracketing
 from methode_halley import t0f_halley
 from newton import t0f_newton
-if(True):#si on utilise le bonus mettre True sinon False
+if True:#si on utilise le bonus mettre True sinon False
     from AlgebraicAnalysis_bonus import t0f_Algebriquement_bonus
     from InputInterpretation_bonus import textToFunc
 
@@ -25,40 +25,32 @@ toutes_les_methodes = ['t0f_halley', 't0f_newton', 't0f_bracketing', 't0f_bracke
 
 def calculate_zeros(method, function, interval):
     # on choisit quelle méthode utilisée puis envoyons en arguments la fonction et l'intervalle sous la forme suivante:"[{fonction}, {début de l'intervalle},  {fin de l'intervalle}]"
-    try:
-        fctvariable = "x"
-    except:
-        errorLabel.config(text=varerror)
+    fctvariable = 'x'
+    
+    if fctvariable in fonction:
+        try:
+            if float(interval[1]) > float(interval[0]):
+                interval = [float(interval[0]), float(interval[1])]
+                errorLabel.config(text=noerror)
+            else:
+                raise Exception("")
+        except:
+            errorLabel.config(text=intervalerror)
 
-    try:
-        if float(interval[1]) > float(interval[0]):
-            interval = [float(interval[0]), float(interval[1])]
-            errorLabel.config(text=noerror)
-        else:
-            raise Exception("")
-    except:
-        errorLabel.config(text=intervalerror)
+        try:
+            if method=="t0f_sturm_taylor_dichotomie":
+                fct_zeros = t0f_sturm_taylor_dichotomie(make_function_from_string(function, fctvariable,"mpmath"), interval[0], interval[1])
+            elif method=="t0f_Algebriquement_bonus":
+                fct_zeros = t0f_Algebriquement_bonus(textToFunc(function))
+            else:
+                fct_zeros = eval(f'{method}(make_function_from_string(function, fctvariable), interval[0], interval[1])')
+            display_graph(make_function_from_string(function, fctvariable), np.linspace(interval[0], interval[1], 10_000),
+                          fct_zeros)
 
-    try:
-        if(method=="t0f_sturm_taylor_dichotomie"):
-            fct_zeros = t0f_sturm_taylor_dichotomie(make_function_from_string(function, fctvariable,"mpmath"), interval[0], interval[1])
-        elif(method=="t0f_Algebriquement_bonus"):
-            fct_zeros = t0f_Algebriquement_bonus(textToFunc(function))
-        else:
-            fct_zeros = eval(f'{method}(make_function_from_string(function, fctvariable), interval[0], interval[1])')
-        display_graph(make_function_from_string(function, fctvariable), np.linspace(interval[0], interval[1], 10_000),
-                      fct_zeros)
-
-    except NameError:
-        errorLabel.config(text=nomethodselecterror)
-
-
-
-def detect_variable(function):
-    for i in ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
-              "v", "w", "x", "y", "z"]:
-        if i in function:
-            return i
+        except NameError:
+            errorLabel.config(text=nomethodselecterror)
+    else:
+        errorLabel.config(text="Vous n'avez pas mis de 'x' dans votre fonction...")
 
 
 def display_graph(f, x_values, zeros):
@@ -120,10 +112,6 @@ fin_intervalle_entry.grid(column=3, row=2)
 ttk.Label(mainframe, text="Intervalle").grid(column=4, row=2)
 
 methode_1_select = StringVar()
-
-# ttk.Checkbutton(mainframe, text="dichotomie", variable=methode_1_select, onvalue="t0f_bracketing_dichotomie").grid(column=1, row=3)
-
-# ttk.Checkbutton(mainframe, text="regula falsi", variable=methode_1_select, onvalue="t0f_bracketing_regula_falsi").grid(column=2, row=3)
 
 for i, nom_methode in enumerate(toutes_les_methodes):
     ttk.Checkbutton(mainframe, text=nom_methode.replace('_', ' ').replace('t0f', '', ), variable=methode_1_select,

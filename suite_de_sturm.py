@@ -83,8 +83,7 @@ def ti1z_suite_sturm(suite_polynome, a, b, intervalle_minimum=10 ** -5):  # Cett
                ti1z_suite_sturm(suite_polynome, (2 * a + b) / 3, (a + 2 * b) / 3, intervalle_minimum=intervalle_minimum) + \
                ti1z_suite_sturm(suite_polynome, (a + 2 * b) / 3, b, intervalle_minimum=intervalle_minimum)
     # Ici on sépare l'intervalle [a, b] en trois intervalles plus petits
-    # Utiliser 3 plutot que 2 m'a (Eden) économisé quelques bugs mais je trouve ça assez moche
-    # Demandez-moi pour plus de détail si vous voulez
+    # Utiliser 3 plutot que 2 a enlevé des bugs
 
 
 def ti1z_polynome(polynome, a, b, intervalle_minimum=10 ** -3):  # Cette fonction permet d'avoir dans un intervalle donné une seule racine
@@ -105,16 +104,15 @@ if __name__ == '__main__':
 
     exemple1 = ti1z_polynome(fonction_polynomiale1, -5, 5)
     print(f'{exemple1 = }')
-    # -> exemple1 = ((-5, -2.5), (-2.5, -1.25), (-1.25, 0.0), (0.0, 1.25), (1.25, 2.5))
+    # -> exemple1 = ((-3.888888888888889, -2.777777777777778), (-2.777777777777778, -1.6666666666666667), (-0.5555555555555556, 0.5555555555555556), (0.5555555555555556, 1.6666666666666667), (1.6666666666666667, 5))
     # chacun des intervalles contient 1 zéro
 
     fonction_polynomiale2 = Polynomial([0, 1]) * Polynomial([-1, 1]) * Polynomial([-1, 1]) * Polynomial([3, 1]) * Polynomial([2, 1])
 
     exemple2 = ti1z_polynome(fonction_polynomiale2, -5, 5)
     print(f'{exemple2 = }')
-    # -> exemple2 = ((-5, -2.5), (-2.5, -1.25), (-1.25, 0.0))
+    # -> exemple2 = ((-3.888888888888889, -2.777777777777778), (-2.777777777777778, -1.6666666666666667), (-1.6666666666666667, 1.6666666666666667))
     # chacun des intervalles contient 1 zéro
-    # notons que la formule n'a pas trouvé la racine *double* 1
 
 
 

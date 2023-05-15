@@ -19,7 +19,7 @@ Pour lancer les programme il faut lancer le fichier *main* en double cliquant de
 ## Sources
 Bouton tkinter :
 
-https://realpython.com/python-gui-tkinter/ , 27/02/2023
+(TKinter tutorial)[https://realpython.com/python-gui-tkinter/ , 27/02/2023]
 
 https://tkdocs.com/tutorial/firstexample.html , 27/02/2023
 

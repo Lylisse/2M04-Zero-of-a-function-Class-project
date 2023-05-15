@@ -43,12 +43,12 @@ def t0f_bracketing_regula_falsi(f, a, b, epsilon=10 ** -10, nb_de_valeurs_a_calc
 # BONUS :
 def t0f_sturm_taylor_dichotomie(f, a, b, epsilon=10 ** -10):
     zeros = []
-    intervalles_avec_1_zero, intervalles_explores = ti1z_sturm_taylor(f, a, b)
+    intervalles_avec_1_zero = ti1z_sturm_taylor(f, a, b)
     for intervalle in intervalles_avec_1_zero:
         zero = float(t0i_bracketing_dichotomie(f, intervalle[0], intervalle[1], epsilon=epsilon))
         if zero not in zeros:
             zeros.append(zero)
-    return zeros, intervalles_explores
+    return zeros
 
 
 if __name__ == '__main__':
@@ -76,9 +76,7 @@ if __name__ == '__main__':
     exemple3 = t0f_sturm_taylor_dichotomie(fonction_mpmath, -3, 3)
     print(f'{exemple3 = }')
     # -> exemple3 = ([-2.506628274618963, -1.772453850902344, 0.0, 1.772453850902344, 2.506628274618963],
-    # [(-3, -1.9878549647396115), (-1.9878549647396115, 1.9878549647396115), (1.9878549647396115, 3)])
     # la première liste donne la liste des zéros trouvés (ON A LE 0!!! nice)
-    # la deuxième donne les intervalles explorés. Pour être honnête, ici on peut l'ignorer ici.
 
 
 

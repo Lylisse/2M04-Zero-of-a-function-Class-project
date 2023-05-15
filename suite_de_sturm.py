@@ -101,13 +101,18 @@ if __name__ == '__main__':
     # exemples de bonne utilisation des fonctions
 
     fonction_polynomiale1 = Polynomial([0, 1]) * Polynomial([-1, 1]) * Polynomial([-2, 1]) * Polynomial([3, 1]) * Polynomial([2, 1])
+    print(f'{fonction_polynomiale1 = }')
 
     exemple1 = ti1z_polynome(fonction_polynomiale1, -5, 5)
     print(f'{exemple1 = }')
     # -> exemple1 = ((-3.888888888888889, -2.777777777777778), (-2.777777777777778, -1.6666666666666667), (-0.5555555555555556, 0.5555555555555556), (0.5555555555555556, 1.6666666666666667), (1.6666666666666667, 5))
     # chacun des intervalles contient 1 zéro
-
+    
+    print()
+    
     fonction_polynomiale2 = Polynomial([0, 1]) * Polynomial([-1, 1]) * Polynomial([-1, 1]) * Polynomial([3, 1]) * Polynomial([2, 1])
+    print(f'{fonction_polynomiale2 = }')
+
 
     exemple2 = ti1z_polynome(fonction_polynomiale2, -5, 5)
     print(f'{exemple2 = }')

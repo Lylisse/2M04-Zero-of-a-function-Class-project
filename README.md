@@ -2,7 +2,7 @@
 
 ## Description
 Le projet consiste à approximer les zeros d'une fonction aussi précisément que possible.
-Les librairires utilisées sont: mpmath, numpy, matplotlib, tkinter, deepcopy (https://docs.python.org/fr/3/library/tkinter.html)       
+Les librairires utilisées sont: mpmath, numpy, matplotlib, tkinter      
 
 ## Setup
 Pour installer les librairies il faut utiliser pip sur le fichier requirements avec les commandes suivante:
@@ -15,3 +15,6 @@ Pour lancer les programme il faut lancer le fichier *main* en double cliquant de
 > cd {votre path}\2M04-Zero-of-a-function-Class-project-main
 > 
 > python main.pyw
+
+## Sources
+

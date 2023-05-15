@@ -1,7 +1,8 @@
 import mpmath as mp
 import matplotlib.pyplot as plt
 import numpy as np
-from InputInterpretation import textToPythonInterpretable
+if(True):#si on utilise le bonus mettre True sinon False
+    from InputInterpretation_bonus import textToPythonInterpretable
 
 
 def plot_function(f, x_values, *args, **kwargs):
@@ -18,7 +19,10 @@ def make_function_from_string(str_func, variable_name='x',lib="numpy"):
     f = make_function_from_string('y ** 2', 'y')
     print(f(3))
     -> 9"""
-    return eval(f'lambda {variable_name}: {textToPythonInterpretable(str_func,lib)}')
+    if(True): #si on utilise le bonus mettre True sinon False
+        return eval(f'lambda {variable_name}: {textToPythonInterpretable(str_func,lib)}')
+    else:
+        return eval(f'lambda {variable_name}: {str_func}')
 
 def derivee(f, h=10 ** -6):
     def f_prime(x):

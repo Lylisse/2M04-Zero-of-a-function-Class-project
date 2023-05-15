@@ -1,4 +1,4 @@
-from InputInterpretation import *
+from InputInterpretation_bonus import *
 Rvalues=[-1000,-100,-10,-1,0,1,10,42,100,1000]#des nombres dans R
 #les commentaires présents dans ce code paraiterons longs pour ceux qui conaissent bien le python, ces commentaires sont pour les "paumés en python".
 def Derivate(aFunc): #On définit la fonction qui va dériver une fonction. La fct initiale va etre aFunc.
@@ -292,7 +292,7 @@ def isConst( aFunc):
 
 
 
-def t0f_Algebriquement(aFunc):
+def t0f_Algebriquement_bonus(aFunc):
     rawZeros=getInverseofFuncbyValue(aFunc,0)
     zeros=[]
     if(type(rawZeros)!=list):

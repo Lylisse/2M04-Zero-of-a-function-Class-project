@@ -11,15 +11,16 @@ from dichotomies import t0f_bracketing_dichotomie, t0f_bracketing_regula_falsi, 
 from bracketing import t0f_bracketing
 from methode_halley import t0f_halley
 from newton import t0f_newton
-from AlgebraicAnalysis import t0f_Algebriquement
-from InputInterpretation import textToFunc
+if(True):#si on utilise le bonus mettre True sinon False
+    from AlgebraicAnalysis_bonus import t0f_Algebriquement_bonus
+    from InputInterpretation_bonus import textToFunc
 
 from fonctions_utiles import make_function_from_string
 
 from fonctions_utiles import plot_function
 
 
-toutes_les_methodes = ['t0f_halley', 't0f_newton', 't0f_bracketing', 't0f_bracketing_dichotomie', 't0f_bracketing_regula_falsi', 't0f_sturm_taylor_dichotomie','t0f_Algebriquement']
+toutes_les_methodes = ['t0f_halley', 't0f_newton', 't0f_bracketing', 't0f_bracketing_dichotomie', 't0f_bracketing_regula_falsi', 't0f_sturm_taylor_dichotomie','t0f_Algebriquement_bonus']
 
 
 def calculate_zeros(method, function, interval):
@@ -41,8 +42,8 @@ def calculate_zeros(method, function, interval):
     try:
         if(method=="t0f_sturm_taylor_dichotomie"):
             fct_zeros = t0f_sturm_taylor_dichotomie(make_function_from_string(function, fctvariable,"mpmath"), interval[0], interval[1])
-        elif(method=="t0f_Algebriquement"):
-            fct_zeros = t0f_Algebriquement(textToFunc(function))
+        elif(method=="t0f_Algebriquement_bonus"):
+            fct_zeros = t0f_Algebriquement_bonus(textToFunc(function))
         else:
             fct_zeros = eval(f'{method}(make_function_from_string(function, fctvariable), interval[0], interval[1])')
         display_graph(make_function_from_string(function, fctvariable), np.linspace(interval[0], interval[1], 10_000),

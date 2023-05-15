@@ -254,6 +254,8 @@ def addUsefullParenths(initialText,triggerChar):
 
 
 def standardizeFunc(text):#fonction qui par exemple renvoie 2*x pour 2x
+    if(text==""):
+        return "0"
     if(text[0]=="-"):
         text="0"+text #on rajoute un 0 devant le - pour que cela puisse être interprété comme une soustraction
     text=text.replace(" ","")#on enlève les espaces

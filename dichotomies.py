@@ -76,7 +76,7 @@ if __name__ == '__main__':
     exemple3 = t0f_sturm_taylor_dichotomie(fonction_mpmath, -3, 3)
     print(f'{exemple3 = }')
     # -> exemple3 = ([-2.506628274618963, -1.772453850902344, 0.0, 1.772453850902344, 2.506628274618963],
-    # la première liste donne la liste des zéros trouvés (ON A LE 0!!! nice)
+    # la liste des zéros trouvés (ON A LE 0!!! nice)
 
 
 

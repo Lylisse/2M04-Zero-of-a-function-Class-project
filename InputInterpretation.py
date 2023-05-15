@@ -513,7 +513,6 @@ def textToPythonInterpretable(text,library=None):
             text=text.replace(BasicFunctionsNames[nameIndex],numpyFunctionNames[nameIndex])
     elif(library!=None):
         print("nom de librarie inconnu!")
-    print(f"Fonction python après interprétation: {text}")
     return text
 
 

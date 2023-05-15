@@ -300,14 +300,14 @@ def t0f_Algebriquement(aFunc):
     for azero in rawZeros:
         if(azero=="R"):
             return Rvalues
-        if(azero!=None and aFunc.getValue(azero)!=None and abs(aFunc.getValue(azero))<=10**-10):
+        if(azero not in [None,"undefined"] and aFunc.getValue(azero)!=None and abs(aFunc.getValue(azero))<=10**-10):
             zeros.append(azero)
     return zeros
 
 
 
 def getInverseofFuncbyValue(aFunc,value):
-    """fonction pour avoir la valeur inverse d'une fonction"""
+    """fonction pour avoir l'inverse d'une fonction selon une valeur"""
     if(type(aFunc.vars)==list):
         for aVar in aFunc.vars:
             if(isConst(aVar) and aVar.getValue(0)==None):

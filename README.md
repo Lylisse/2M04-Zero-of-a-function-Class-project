@@ -19,10 +19,10 @@ Pour lancer les programme il faut lancer le fichier *main* en double cliquant de
 ## Sources
 Bouton tkinter :
 
-(TKinter tutorial)[https://realpython.com/python-gui-tkinter/ , 27/02/2023]
+[TKinter tutorial](https://realpython.com/python-gui-tkinter/) , 27/02/2023
 
-https://tkdocs.com/tutorial/firstexample.html , 27/02/2023
+[Another TKinter tutorial](https://tkdocs.com/tutorial/firstexample.html) , 27/02/2023
 
-https://tkdocs.com/tutorial/firstexample.html , 27/02/2023
+[A third TKinter tutorial](https://tkdocs.com/tutorial/firstexample.html) , 27/02/2023
 
-https://stackoverflow.com/questions/46026782/changing-entry-box-background-colour-in-tkinter , 20/03/2023
+[Forum help for TKinter](https://stackoverflow.com/questions/46026782/changing-entry-box-background-colour-in-tkinter) , 20/03/2023

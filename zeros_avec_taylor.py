@@ -1420,13 +1420,11 @@ def ti1z_sturm_taylor(f: callable, a: float, b: float, h=10 ** -5) -> (iter, ite
 
     morceaux_taylor = taylor_par_morceaux(f, lambda f, x0: taylor(f, order=30, x0=x0, h=h), a, b, nombre_max=10, marge_erreur=10**-3)
 
-    intervalles_explores = []
-    for (local_a, local_b), taylor_poly in morceaux_taylor.items():
-        intervalles_explores.append((local_a, local_b))
-        tous_les_intervalles += ti1z_polynome(taylor_poly, local_a, local_b)
+    for (a_intervalle, b_intervalle), taylor_poly in morceaux_taylor.items():
+        tous_les_intervalles += ti1z_polynome(taylor_poly, a_intervalle, b_intervalle)
 
 
-    return tous_les_intervalles, intervalles_explores
+    return tous_les_intervalles
 
 
 if __name__ == '__main__':
@@ -1436,12 +1434,6 @@ if __name__ == '__main__':
 
     def fonction(x):
         return sin(x ** 2)
-
-    """polynomiale = taylor(fonction, 30, 0, h=10**-5)
-    # print(polynomiale)
-    print(nombre_de_racines_simples(suite_de_Sturm(polynomiale), -0.1, 0.1))
-    print(i1z_polynome(polynomiale, -0.01, 0))
-    input('done now')"""
 
 
     exemple = ti1z_sturm_taylor(fonction, -3, 3)

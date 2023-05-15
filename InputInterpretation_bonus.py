@@ -168,7 +168,7 @@ class Function: #on définit les propriétés de l'object fonction
             try:
                 return eval(numpyFunctionNames[index]+f"({self.vars.getValue(n)})")
             except:
-                print("exception! l.169")
+                #print("exception! l.169", numpyFunctionNames[index]+f"({self.vars.getValue(n)})")
                 return None
 
 

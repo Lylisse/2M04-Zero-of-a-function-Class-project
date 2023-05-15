@@ -306,7 +306,8 @@ def t0f_Algebriquement_bonus(aFunc):
 
 
 
-def getInverseofFuncbyValue(aFunc,value):
+def getInverseofFuncbyValue(aFunc,value,range=[-100,100]):
+    #print(aFunc,value)
     """fonction pour avoir l'inverse d'une fonction selon une valeur"""
     if(type(aFunc.vars)==list):
         for aVar in aFunc.vars:
@@ -319,12 +320,83 @@ def getInverseofFuncbyValue(aFunc,value):
             return "R"
         else:
             return None
+    elif(aFunc.type == "sin"):
+        index = BasicFunctionsNamesInverted.index(aFunc.type)
+        startk=round(range[0]/(np.pi*2))
+        endk=round(range[1]/(np.pi*2))
+        inverses=[]
+        while startk<=endk:
+            try:
+                inverse=getInverseofFuncbyValue(aFunc.vars,eval(numpyFunctionNames[index]+f"({value})")+2*np.pi*startk,range)
+            except:
+                inverse=None
+            if(type(inverse)==list):
+                for anInverse in inverse:
+                    inverses.append(anInverse)
+            else:
+                inverses.append(inverse)
+            try:
+                inverse=getInverseofFuncbyValue(aFunc.vars,np.pi-eval(numpyFunctionNames[index]+f"({value})")+2*np.pi*startk,range)
+            except:
+                inverse=None
+
+            if(type(inverse)==list):
+                for anInverse in inverse:
+                    inverses.append(anInverse)
+            else:
+                inverses.append(inverse)
+            startk+=1
+        return inverses
+    elif(aFunc.type =="cos"):
+        index = BasicFunctionsNamesInverted.index(aFunc.type)
+        startk=round(range[0]/(np.pi*2))
+        endk=round(range[1]/(np.pi*2))
+        inverses=[]
+        while startk<=endk:
+            try:
+                inverse=getInverseofFuncbyValue(aFunc.vars,eval(numpyFunctionNames[index]+f"({value})")+2*np.pi*startk,range)
+            except:
+                inverse=None
+            if(type(inverse)==list):
+                for anInverse in inverse:
+                    inverses.append(anInverse)
+            else:
+                inverses.append(inverse)
+            try:
+                inverse=getInverseofFuncbyValue(aFunc.vars,-eval(numpyFunctionNames[index]+f"({value})")+2*np.pi*startk,range)
+            except:
+                inverse=None
+            if(type(inverse)==list):
+                for anInverse in inverse:
+                    inverses.append(anInverse)
+            else:
+                inverses.append(inverse)
+            startk+=1
+        return inverses
+    elif(aFunc.type in "tan"):
+        index = BasicFunctionsNamesInverted.index(aFunc.type)
+        startk=round(range[0]/(np.pi))
+        endk=round(range[1]/(np.pi))
+        inverses=[]
+        while startk<=endk:
+            try:
+                inverse=getInverseofFuncbyValue(aFunc.vars,eval(numpyFunctionNames[index]+f"({value})")+2*np.pi*startk,range)
+            except:
+                inverse=None
+            if(type(inverse)==list):
+                for anInverse in inverse:
+                    inverses.append(anInverse)
+            else:
+                inverses.append(inverse)
+            startk+=1
+        return inverses
     elif(aFunc.type in BasicFunctionsNames):
         if(value==0 and aFunc.type=="exp"):
             return None
         index = BasicFunctionsNamesInverted.index(aFunc.type)
         try:
-            inverse= getInverseofFuncbyValue(aFunc.vars,eval(numpyFunctionNames[index]+f"({value})"))
+            range=[eval(numpyFunctionNames[index]+f"({aRange})") for aRange in range]
+            inverse= getInverseofFuncbyValue(aFunc.vars,eval(numpyFunctionNames[index]+f"({value})"),range)
             return inverse
         except:
             print("exception! l.329")
@@ -339,14 +411,14 @@ def getInverseofFuncbyValue(aFunc,value):
             else:
                 VarVar=aVar #la variable variable de l'addition est aVar puisqu'elle n'est pas constante
         if(ConstCount==len(aFunc.vars)-1):
-            return getInverseofFuncbyValue(VarVar,value-ConstsValue)
+            return getInverseofFuncbyValue(VarVar,value-ConstsValue,range)
     elif(aFunc.type=="-"):
         aFunc=aFunc.deepcopy()
         aFunc.type="+"
         for aVar in aFunc.vars[1:]:
             aVar.vars=[cf(-1),aVar.deepcopy()]
             aVar.type="*"
-        return getInverseofFuncbyValue(aFunc,value)
+        return getInverseofFuncbyValue(aFunc,value,range)
     elif(aFunc.type=="*"):
         ConstCount=0
         ConstsValue=1
@@ -362,11 +434,12 @@ def getInverseofFuncbyValue(aFunc,value):
                     return "R"
                 else:
                     return None
-            return getInverseofFuncbyValue(VarVar,value/ConstsValue)
+            range=[aRange*ConstsValue for aRange in range]
+            return getInverseofFuncbyValue(VarVar,value/ConstsValue,range)
         elif(value ==0):#si notre multiplication a plusieurs termes variables, on peut toujours trouver les 0 de chaque terme
             FuncZeros=[]
             for aVar in aFunc.vars:
-                FuncZeros.append(getInverseofFuncbyValue(aVar,0))
+                FuncZeros.append(getInverseofFuncbyValue(aVar,0,range))
             return FuncZeros
     elif(aFunc.type=="/"):
         ConstCount=0
@@ -386,16 +459,18 @@ def getInverseofFuncbyValue(aFunc,value):
                 VarVar=aVar #la variable variable de l'addition est aVar puisqu'elle n'est pas constante
         if(ConstCount==len(aFunc.vars)-1):#si il y a un seul terme variable dans notre multiplication alors
             if(isFirstTermConst==False):
-                return getInverseofFuncbyValue(VarVar,value/ConstsValue)#on est dans le cas de la multiplication
+                range=[ConstsValue*aRange for aRange in range]
+                return getInverseofFuncbyValue(VarVar,value/ConstsValue,range)#on est dans le cas de la multiplication
             else:
                 if(value==0):
                     if(ConstsValue==0):
                         return "R"
                     else:
                         return None
-                return getInverseofFuncbyValue(VarVar,ConstsValue/value)#on est dans le cas inverse de la multiplication : n = a/x/b =a*(1/b)/x <=> x = a*(1/b)/n
+                #on change pas range parceque pourquoi pas
+                return getInverseofFuncbyValue(VarVar,ConstsValue/value,range)#on est dans le cas inverse de la multiplication : n = a/x/b =a*(1/b)/x <=> x = a*(1/b)/n
         elif(value == 0):#si notre division a plusieurs termes variables, on peut toujours trouver les 0 du numérateur
-            return getInverseofFuncbyValue(aFunc.vars[0],0)
+            return getInverseofFuncbyValue(aFunc.vars[0],0,range)
     elif(aFunc.type=="^"):
         if(len(aFunc.vars)!=2):
             aFunc=aFunc.deepcopy()
@@ -408,18 +483,19 @@ def getInverseofFuncbyValue(aFunc,value):
                 else:
                     return "R"
             if(value==0):
-                return getInverseofFuncbyValue(aFunc.vars[0],0)
-            return getInverseofFuncbyValue(aFunc.vars[0],value**(1/aFunc.vars[1].getValue(0)))
+                return getInverseofFuncbyValue(aFunc.vars[0],0,range)
+            #range a modifier
+            return getInverseofFuncbyValue(aFunc.vars[0],value**(1/aFunc.vars[1].getValue(0)),range)
         elif(not isConst(aFunc.vars[1])and isConst(aFunc.vars[0])):#on est dans le cas a^f(x)=n <=> f(x)=loga(n)=ln(n)/ln(a)
             if(value==0 and aFunc.vars[0].getValue(0)==0):
                 return "R"
             elif(value==0 or aFunc.vars[0].getValue(0)==0):
                 return None
-            return getInverseofFuncbyValue(aFunc.vars[1],np.log(value)/np.log(aFunc.vars[0].getValue(0)))
+            return getInverseofFuncbyValue(aFunc.vars[1],np.log(value)/np.log(aFunc.vars[0].getValue(0)),range)
         elif(value == 1):
-            return getInverseofFuncbyValue(aFunc.vars[1],0)
+            return getInverseofFuncbyValue(aFunc.vars[1],0,range)
         elif(value == 0):
-            return getInverseofFuncbyValue(aFunc.vars[0],0)
+            return getInverseofFuncbyValue(aFunc.vars[0],0,range)
         
     return "undefined"
 
@@ -433,4 +509,4 @@ def getInverseofFuncbyValue(aFunc,value):
 
 if __name__ =="__main__":
     while True:
-        print(t0f_Algebriquement(input()))
+        print(t0f_Algebriquement_bonus(input()))

@@ -83,8 +83,7 @@ def ti1z_suite_sturm(suite_polynome, a, b, intervalle_minimum=10 ** -5):  # Cett
                ti1z_suite_sturm(suite_polynome, (2 * a + b) / 3, (a + 2 * b) / 3, intervalle_minimum=intervalle_minimum) + \
                ti1z_suite_sturm(suite_polynome, (a + 2 * b) / 3, b, intervalle_minimum=intervalle_minimum)
     # Ici on sépare l'intervalle [a, b] en trois intervalles plus petits
-    # Utiliser 3 plutot que 2 m'a (Eden) économisé quelques bugs mais je trouve ça assez moche
-    # Demandez-moi pour plus de détail si vous voulez
+    # Utiliser 3 plutot que 2 a enlevé des bugs
 
 
 def ti1z_polynome(polynome, a, b, intervalle_minimum=10 ** -3):  # Cette fonction permet d'avoir dans un intervalle donné une seule racine

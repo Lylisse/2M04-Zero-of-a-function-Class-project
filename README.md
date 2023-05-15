@@ -17,4 +17,8 @@ Pour lancer les programme il faut lancer le fichier *main* en double cliquant de
 > python main.pyw
 
 ## Sources
-
+Bouton tkinter :
+https://realpython.com/python-gui-tkinter/ , 27/02/2023
+https://tkdocs.com/tutorial/firstexample.html , 27/02/2023
+https://tkdocs.com/tutorial/firstexample.html , 27/02/2023
+https://stackoverflow.com/questions/46026782/changing-entry-box-background-colour-in-tkinter , 20/03/2023

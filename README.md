@@ -14,7 +14,7 @@ Pour installer les librairies il faut utiliser pip sur le fichier requirements a
 Pour lancer les programme il faut lancer le fichier *main* en double cliquant dessus, ou en utilisant la commande:
 > cd {votre path}\2M04-Zero-of-a-function-Class-project-main
 > 
-> python main.pyw
+> python main.py
 
 ## Guide pour lire le code
 Pour éviter de rendre les noms de variables trop longs, certaines conventions ont été mises en place : 

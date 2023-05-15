@@ -27,7 +27,7 @@ def calculate_zeros(method, function, interval):
     # on choisit quelle méthode utilisée puis envoyons en arguments la fonction et l'intervalle sous la forme suivante:"[{fonction}, {début de l'intervalle},  {fin de l'intervalle}]"
     fctvariable = 'x'
     
-    if fctvariable in str(fonction):
+    if fctvariable in fonction.get():
         try:
             if float(interval[1]) > float(interval[0]):
                 interval = [float(interval[0]), float(interval[1])]

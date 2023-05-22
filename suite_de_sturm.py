@@ -99,8 +99,12 @@ def ti1z_polynome(polynome, a, b, intervalle_minimum=10 ** -3):  # Cette fonctio
 
 if __name__ == '__main__':
     # exemples de bonne utilisation des fonctions
-
+    
+    # Polynomial([0, 1]) = 0 + x
+    # Polynomial([-1, 1]) = -1 + x
+    # Polynomial([-3, 1, 9]) = -3 + x + 9x^2
     fonction_polynomiale1 = Polynomial([0, 1]) * Polynomial([-1, 1]) * Polynomial([-2, 1]) * Polynomial([3, 1]) * Polynomial([2, 1])
+    # Polynome dont les racines sont 0, 1, 2, -3 et -2
     print(f'{fonction_polynomiale1 = }')
 
     exemple1 = ti1z_polynome(fonction_polynomiale1, -5, 5)

@@ -6,7 +6,7 @@ def ti1z_bracketing(f: callable, a: float, b: float, nb_de_valeurs_a_calculer=10
     Le but de cette fonction, dont le nom veut dire "trouver des intervalles avec 1 zéro bracketing" est de... trouver des intervalles
     avec 1 zéro. Elle calcule un très grand nombre de valeurs dans un intervalle donné, pour une fonction donnée.
     Supposons que l'on a calculé les valeurs f(1.23) = -0.02 et f(1.24) = 0.03. Puisque il y a un changement de signe, il y a forcément
-    un zéro de la fonction se trouvant dans l'intervalle ]-0.02, 0.03[.
+    un zéro de la fonction se trouvant dans l'intervalle ]1.23, 1.24[.
     Ensuite, on peut soit simplement prendre la valeur au milieu (ici 1.235) et dire que ce sera un zéro (c'est ce que fait t0f_bracketing) ;
     soit on peut raffiner avec d'autres méthodes (comme par exemples celles dans dichotomie).
 

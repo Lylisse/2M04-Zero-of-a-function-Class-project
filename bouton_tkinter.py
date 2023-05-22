@@ -1,3 +1,5 @@
+# BONUS
+
 import numpy as np
 from matplotlib.pyplot import show, plot
 from math import ceil

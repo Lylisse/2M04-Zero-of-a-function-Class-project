@@ -18,9 +18,9 @@ def t0i_bracketing_dichotomie(f: callable, a: float, b: float, epsilon=10**-10):
 def t0i_bracketing_regula_falsi(f: callable, a: float, b: float, epsilon=10**-10):
     c = a - f(a) * (b-a)/(f(b)-f(a))  # formule regula falsi
     while abs(f(c)) > epsilon:
-        if f(a) * f(c) < 0:  # f(a) et f(c) ont le même signe
+        if f(a) * f(c) < 0:  # f(a) et f(c) ont pas le même signe
             b = c
-        # elif f(a)*f(c)/abs(f(a)*f(c))==0 :
+        # elif f(a)*f(c)==0 :
         #    cas ne pouvant pas se présenter à cause de la condition de la boucle while
         else:
             a = c

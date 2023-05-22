@@ -28,7 +28,7 @@ def ti1z_bracketing(f: callable, a: float, b: float, nb_de_valeurs_a_calculer=10
     liste_de_y = map(f, list_de_x_a_verifier)  # on calcule f à toutes les valeurs x
     # https://docs.python.org/3/library/functions.html#map
 
-    zeros_approx = []
+    intervalles_1_zero = []
     y_precedent = 0  # ignorez pour l'instant
     x_precedent = a  # ignorez pour l'instant
 
@@ -43,13 +43,13 @@ def ti1z_bracketing(f: callable, a: float, b: float, nb_de_valeurs_a_calculer=10
             actuel avec le y précédent.
             À noter que l'on arrivera jamais ici à la première itération, ce qui est une bonne chose, car 
             y * y_precedent sera égal à zéro, puisqu'on a défini y_precedent = 0 au début."""
-            zeros_approx.append((x_precedent, x))  # on ajoute le x à la liste d'zeros_approx
+            intervalles_1_zero.append((x_precedent, x))  # on ajoute le x à la liste d'intervalles_1_zero
 
         # finalement, on change les valeurs de y et x precedents pour leurs valeurs actuelles pour l'itération suivante.
         y_precedent = y
         x_precedent = x
 
-    return solutions_trouvees_par_hazard, zeros_approx
+    return solutions_trouvees_par_hazard, intervalles_1_zero
 
 def t0f_bracketing(f: callable, a: float, b: float, nb_de_valeurs_a_calculer=10 ** 4) -> list:
     """Cette fonction fait le role décrit dans le commentaire en haut de la fonction précédente.
